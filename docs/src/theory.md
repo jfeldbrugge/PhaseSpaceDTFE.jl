@@ -16,5 +16,9 @@ e^{i \pi} = - 1
 $$a_0 x^n + a_1 x^{n-1} + \dots + a_{n-1} x + a_n = 0,$$
 
 ```@example
-1+2+3
+using Plots
+
+x = range(0, 10, length=100)
+y = sin.(x)
+plot(x, y)
 ```
