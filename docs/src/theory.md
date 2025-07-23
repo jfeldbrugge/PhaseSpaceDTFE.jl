@@ -27,10 +27,11 @@ y = sin.(x)
 plot(x, y)
 ```
 
-```@example
+```@example 1
 A = 5
 ```
 
-```@example
+```@example 1
 B = A + 1
 ```
+
