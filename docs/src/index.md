@@ -2,13 +2,12 @@
 CurrentModule = PSDTFE
 ```
 
-# PSDTFE
+# Phase-Space DTFE
 
 Documentation for [PSDTFE](https://github.com/jfeldbrugge/PSDTFE.jl).
 
-```@index
-```
+## Install
 
-```@autodocs
-Modules = [PSDTFE]
+```julia-repl
+pkg> add https://github.com/jfeldbrugge/PSDTFE.jl
 ```
