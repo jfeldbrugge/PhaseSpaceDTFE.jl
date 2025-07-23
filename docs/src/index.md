@@ -11,3 +11,7 @@ Documentation for [PSDTFE](https://github.com/jfeldbrugge/PSDTFE.jl).
 ```julia-repl
 pkg> add https://github.com/jfeldbrugge/PSDTFE.jl
 ```
+
+## Contributors 
+- Job Feldbrugge
+- Benjamin Hertzsch
