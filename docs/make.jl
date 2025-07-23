@@ -19,6 +19,6 @@ makedocs(;
 
 deploydocs(;
     repo="github.com/jfeldbrugge/PSDTFE.jl",
-    push_preview = true  # important for GitHub Actions!,
+    push_preview = true,  # important for GitHub Actions!
     devbranch="main",
 )
