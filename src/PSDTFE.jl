@@ -1,6 +1,8 @@
 module PSDTFE
 
     using LinearAlgebra, StaticArrays, TetGen, Serialization, ProgressMeter
+    
+    """Explanation """
     struct BVH
         data::Union{Vector{Int}, Nothing}
         box::Matrix{Float64}
@@ -181,8 +183,6 @@ module PSDTFE
         simplexIndices = findIntersections(p, estimator.tree, estimator.positions, estimator.simplices)
     end
 
-
-
     ###############################################################################
     ## Subbox PS-DTFE calculation
     ###############################################################################
@@ -271,6 +271,7 @@ module PSDTFE
         Ni::Int64
     end
 
+    """Doc string"""
     struct SimBox
         L::Float64
         Ni::Int64
@@ -324,7 +325,7 @@ module PSDTFE
             get_subbox_estimator(coords_q_, coords_x_, velocities_, [i, j, k], N_sub, m, depth, sim_box; pad=pad, dir=dir)
         end
 
-        return PS_DTFE_subbox(N_sub, N_target, m, depth, dir, L, sim_box.Ni)
+        return PS_DTFE_subbox(N_sub, N_target, m, depth, dir, sim_box.L, sim_box.Ni)
     end
 
     function get_subbox_estimator(coords_q, coords_x, idx, N_sub, m, depth, sim_box::SimBox; pad=0.05, dir="./ps_dtfe")
