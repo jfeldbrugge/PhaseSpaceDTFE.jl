@@ -6,7 +6,6 @@ CurrentModule = PhaseSpaceDTFE
 
 We use the PhaseSpaceDTFE package to estimate the density and velocity fields of a GadGet-4 simulation. First, we load the data
 
-
 ```@example tutorial1
 using JLD2, Plots, HDF5, ProgressMeter, PhaseSpaceDTFE
 
