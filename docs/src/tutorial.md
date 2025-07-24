@@ -40,7 +40,7 @@ m = load_mass("../../test/data/snapshot_000.hdf5")
 Next, we pre-process and compute the Phase-Space DTFE objects.
 
 ```@example tutorial1
-# depth = 7
+depth = 7
 # sim_box = SimBox(L, Ni)  # note that need this custom struct for subbox
 
 # ## construct estimators with velocities
