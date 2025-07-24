@@ -33,6 +33,6 @@ function load_mass(file)
 end
 
 m = load_mass("../../test/data/snapshot_000.hdf5")
-# (coords_q, _, _) = load_data("../test/data/snapshot_000.hdf5")
-# (coords_x, vels, _) = load_data("../test/data/snapshot_002.hdf5")
+(coords_q, _, _) = load_data("../../test/data/snapshot_000.hdf5")
+(coords_x, vels, _) = load_data("../../test/data/snapshot_002.hdf5")
 ```
