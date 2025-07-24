@@ -8,8 +8,8 @@ Load a GadGet-4 simulation.
 
 
 ```@example
-1+1
-# using JLD2, Plots, HDF5, ProgressMeter, PSDTFE
+using JLD2, Plots, HDF5, ProgressMeter
+# , PSDTFE
 
 # ## set up simulation box
 # Ni = 64
