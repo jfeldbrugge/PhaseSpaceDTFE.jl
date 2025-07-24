@@ -55,9 +55,11 @@ sim_box = SimBox(L, Ni)  # note that need this custom struct for subbox
 nothing
 ```
 
+```@example tutorial1
 m = load_mass("data/snapshot_000.hdf5")
 (coords_q, _, _) = load_data("data/snapshot_000.hdf5")
 (coords_x, vels, _) = load_data("data/snapshot_002.hdf5")
+```
 
 ```@example tutorial1
 ## process data: unwrapping from periodic boundary conditions and framing coordinates periodically around box
