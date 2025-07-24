@@ -41,9 +41,9 @@ Next, we pre-process and compute the Phase-Space DTFE objects.
 
 ```@example tutorial1
 depth = 7
-# sim_box = SimBox(L, Ni)  # note that need this custom struct for subbox
+sim_box = SimBox(L, Ni)  # note that need this custom struct for subbox
 
-# ## construct estimators with velocities
+## construct estimators with velocities
 # ps_dtfe_sb = ps_dtfe_subbox(coords_q, coords_x, vels, m, depth, sim_box; N_target=32)
 
 # ## construct estimator without velocities
