@@ -19,19 +19,4 @@ The DTFE method converts the current positions of the $N$-body particles and the
 The PS-DTFE method extends the DTFE method to phase-space.
 
 
-```@example
-using Plots
-
-x = range(0, 10, length=100)
-y = sin.(x)
-plot(x, y)
-```
-
-```@example 1
-A = 5
-```
-
-```@example 1
-B = A + 1
-```
 
