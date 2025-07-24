@@ -1,6 +1,6 @@
-using PSDTFE
+using PhaseSpaceDTFE
 using Test
 
-@testset "PSDTFE.jl" begin
+@testset "PhaseSpaceDTFE.jl" begin
     # Write your tests here.
 end

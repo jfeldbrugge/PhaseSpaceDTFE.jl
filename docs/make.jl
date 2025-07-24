@@ -1,14 +1,14 @@
-using PSDTFE
+using PhaseSpaceDTFE
 using Documenter
 
-DocMeta.setdocmeta!(PSDTFE, :DocTestSetup, :(using PSDTFE); recursive=true)
+DocMeta.setdocmeta!(PhaseSpaceDTFE, :DocTestSetup, :(using PhaseSpaceDTFE); recursive=true)
 
 makedocs(;
-    modules=[PSDTFE],
+    modules=[PhaseSpaceDTFE],
     authors="Job Feldbrugge <14946916+jfeldbrugge@users.noreply.github.com> and contributors",
-    sitename="PSDTFE.jl",
+    sitename="PhaseSpaceDTFE.jl",
     format=Documenter.HTML(;
-        canonical="https://jfeldbrugge.github.io/PSDTFE.jl",
+        canonical="https://jfeldbrugge.github.io/PhaseSpaceDTFE.jl",
         edit_link="main",
         assets=String[],
     ),
@@ -21,7 +21,7 @@ makedocs(;
 )
 
 deploydocs(;
-    repo="github.com/jfeldbrugge/PSDTFE.jl",
+    repo="github.com/jfeldbrugge/PhaseSpaceDTFE.jl",
     push_preview = true,  # important for GitHub Actions!
     devbranch="main",
 )

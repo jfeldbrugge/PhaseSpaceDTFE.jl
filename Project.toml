@@ -1,4 +1,4 @@
-name = "PSDTFE"
+name = "PhaseSpaceDTFE"
 uuid = "4bbf42c9-fe82-44eb-a825-ab877c23bdb8"
 authors = ["Job Feldbrugge <14946916+jfeldbrugge@users.noreply.github.com> and contributors"]
 version = "1.0.0-DEV"
