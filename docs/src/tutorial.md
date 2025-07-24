@@ -55,6 +55,20 @@ sim_box = SimBox(L, Ni)  # note that need this custom struct for subbox
 nothing
 ```
 
+m = load_mass("data/snapshot_000.hdf5")
+(coords_q, _, _) = load_data("data/snapshot_000.hdf5")
+(coords_x, vels, _) = load_data("data/snapshot_002.hdf5")
+
+```@example tutorial1
+## process data: unwrapping from periodic boundary conditions and framing coordinates periodically around box
+pad  = 0.05
+
+coords_x             = unwrap_x_(coords_q, coords_x, L);          # unwrapping necessary for proper DM sheet identification
+coords_q_, coords_x_ = translate(coords_q, coords_x, L)           # preparation for padding
+vels_                = frame_velocities(coords_x_, vels, L, pad)  # frame velocities (BEFORE framing coordinates!)
+coords_q_, coords_x_ = frame(coords_q_, coords_x_, L, pad);       # framing by small factor * width of box
+```
+
 ```@example tutorial1
 depth = 7
 box = [0 L; 0 L; 0 L]
