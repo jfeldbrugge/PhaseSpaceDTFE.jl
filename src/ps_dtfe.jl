@@ -1,3 +1,8 @@
+struct SimBox
+    L::Float64
+    Ni::Int64
+end
+
 function unwrap_x_(q, x, L)
     unwrap_s.(x - q, L) + q
 end
@@ -112,18 +117,27 @@ struct PS_DTFE
         end
         
         return new(rho, Drho, Dv, BVH_tree, simplices, positions, velocities, positions_initial)
-
     end
 end
 
-function PS_DTFE_periodic(coords_q, coords_x, velocities, m, depth, box; pad=0.05)
-    L = box[1, 2]
-    coords_x = unwrap_x_(coords_q, coords_x, L);
-    coords_q_, coords_x_ = translate(coords_q, coords_x, L)
-    velocities_          = frame_velocities(coords_x_, velocities, L, pad)
-    coords_q_, coords_x_ = frame(coords_q_, coords_x_, L, pad);
+function PS_DTFE_periodic(coords_q, coords_x, velocities, m, depth, sim_box; pad=0.05)
+    coords_x = unwrap_x_(coords_q, coords_x, sim_box.L);
+    coords_q_, coords_x_ = translate(coords_q, coords_x, sim_box.L)
+    velocities_          = frame_velocities(coords_x_, velocities, sim_box.L, pad)
+    coords_q_, coords_x_ = frame(coords_q_, coords_x_, sim_box.L, pad)
 
+    box = [0 sim_box.L; 0 sim_box.L; 0 sim_box.L]
     PS_DTFE(coords_q_, coords_x_, velocities_, m, depth, box)
+end
+
+function PS_DTFE_periodic(coords_q, coords_x, m, depth, sim_box; pad=0.05)
+    coords_x = unwrap_x_(coords_q, coords_x, sim_box.L);
+    coords_q_, coords_x_ = translate(coords_q, coords_x, sim_box.L)
+    coords_q_, coords_x_ = frame(coords_q_, coords_x_, sim_box.L, pad)
+    Ni_ = size(coords_q_)[1]
+
+    box = [0 sim_box.L; 0 sim_box.L; 0 sim_box.L]
+    PS_DTFE(coords_q_, coords_x_, zeros(Ni_, 3), m, depth, box)
 end
 
 function density(p::Vector{Float64}, estimator::PS_DTFE)
