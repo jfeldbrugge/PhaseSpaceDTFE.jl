@@ -36,11 +36,25 @@ sim_box = SimBox(L, Ni)  # note that need this custom struct for subbox
 
 # # it is recommended to save the estimator object (holding the subbox references) for further use
 # save(&quot;ps_dtfe_sb.jld2&quot;, &quot;ps-dtfe-sb&quot;, ps_dtfe_sb)
-# ps_dtfe_sb = load(&quot;ps_dtfe_sb.jld2&quot;)[&quot;ps-dtfe-sb&quot;]</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">SimBox(100.0, 64)</code></pre><p>Finally, we evaluate the density field </p><pre><code class="language-julia hljs">1+1
-# Range = 0.:0.2:100.
+# ps_dtfe_sb = load(&quot;ps_dtfe_sb.jld2&quot;)[&quot;ps-dtfe-sb&quot;]
+nothing</code></pre><pre><code class="language-julia hljs">## process data: unwrapping from periodic boundary conditions and framing coordinates periodically around box
+pad  = 0.05
+
+# coords_x             = unwrap_x_(coords_q, coords_x, L);          # unwrapping necessary for proper DM sheet identification
+# coords_q_, coords_x_ = translate(coords_q, coords_x, L)           # preparation for padding
+# vels_                = frame_velocities(coords_x_, vels, L, pad)  # frame velocities (BEFORE framing coordinates!)
+# coords_q_, coords_x_ = frame(coords_q_, coords_x_, L, pad);       # framing by small factor * width of box</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">0.05</code></pre><pre><code class="language-julia hljs">depth = 7
+box = [0 L; 0 L; 0 L]
+
+## construct estimator
+# ps_dtfe = PS_DTFE(coords_q_, coords_x_, vels_, m, depth, box)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">3×2 Matrix{Float64}:
+ 0.0  100.0
+ 0.0  100.0
+ 0.0  100.0</code></pre><p>Finally, we evaluate the density field </p><pre><code class="language-julia hljs"># Range = 0.:0.2:100.
 
 # coords_arr  = [[L/2., y, z] for y in Range, z in Range]
 
 # density_field = density_subbox(coords_arr,  ps_dtfe_sb)
 
-# heatmap(Range, Range,log10.(density_field), aspect_ratio=:equal, xlims=(0, L), ylims=(0, L), c=:grays)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">2</code></pre></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../theory/">« Theory</a><a class="docs-footer-nextpage" href="../reference/">Reference »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.14.1 on <span class="colophon-date" title="Thursday 24 July 2025 13:39">Thursday 24 July 2025</span>. Using Julia version 1.11.6.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
+# heatmap(Range, Range,log10.(density_field), aspect_ratio=:equal, xlims=(0, L), ylims=(0, L), c=:grays)
+nothing</code></pre></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../theory/">« Theory</a><a class="docs-footer-nextpage" href="../reference/">Reference »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.14.1 on <span class="colophon-date" title="Thursday 24 July 2025 15:04">Thursday 24 July 2025</span>. Using Julia version 1.11.6.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
