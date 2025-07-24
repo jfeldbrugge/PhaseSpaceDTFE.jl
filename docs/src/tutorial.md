@@ -55,30 +55,11 @@ sim_box = SimBox(L, Ni)  # note that need this custom struct for subbox
 nothing
 ```
 
-
-```@example tutorial1
-## process data: unwrapping from periodic boundary conditions and framing coordinates periodically around box
-pad  = 0.05
-
-coords_x             = unwrap_x_(coords_q, coords_x, L);          # unwrapping necessary for proper DM sheet identification
-# coords_q_, coords_x_ = translate(coords_q, coords_x, L)           # preparation for padding
-# vels_                = frame_velocities(coords_x_, vels, L, pad)  # frame velocities (BEFORE framing coordinates!)
-# coords_q_, coords_x_ = frame(coords_q_, coords_x_, L, pad);       # framing by small factor * width of box
-```
-
-```@example tutorial1
-depth = 7
-box = [0 L; 0 L; 0 L]
-
-## construct estimator
-# ps_dtfe = PS_DTFE(coords_q_, coords_x_, vels_, m, depth, box)
-```
-
 Finally, we evaluate the density field 
 ```@example tutorial1
-# Range = 0.:0.2:100.
+Range = 0.:0.2:100.
 
-# coords_arr  = [[L/2., y, z] for y in Range, z in Range]
+coords_arr  = [[L/2., y, z] for y in Range, z in Range]
 
 # density_field = density_subbox(coords_arr,  ps_dtfe_sb)
 
