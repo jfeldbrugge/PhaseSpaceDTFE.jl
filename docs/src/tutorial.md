@@ -44,7 +44,7 @@ depth = 7
 sim_box = SimBox(L, Ni)  # note that need this custom struct for subbox
 
 ## construct estimators with velocities
-ps_dtfe_sb = ps_dtfe_subbox(coords_q, coords_x, vels, m, depth, sim_box; N_target=32)
+# ps_dtfe_sb = ps_dtfe_subbox(coords_q, coords_x, vels, m, depth, sim_box; N_target=32)
 
 # ## construct estimator without velocities
 # #ps_dtfe = ps_dtfe_subbox(coords_q, coords_x, m, depth, sim_box; N_target=32)
@@ -53,6 +53,14 @@ ps_dtfe_sb = ps_dtfe_subbox(coords_q, coords_x, vels, m, depth, sim_box; N_targe
 # save("ps_dtfe_sb.jld2", "ps-dtfe-sb", ps_dtfe_sb)
 # ps_dtfe_sb = load("ps_dtfe_sb.jld2")["ps-dtfe-sb"]
 nothing
+```
+
+```@example tutorial1
+depth = 7
+box = [0 L; 0 L; 0 L]
+
+## construct estimator
+ps_dtfe = PS_DTFE(coords_q_, coords_x_, vels_, m, depth, box)
 ```
 
 Finally, we evaluate the density field 
