@@ -32,7 +32,7 @@ function load_mass(file)
     read_attribute(f["Header"], "MassTable")[2]  # particle type 1
 end
 
-# m = load_mass("../test/data/snapshot_000.hdf5")
+m = load_mass("../test/data/snapshot_000.hdf5")
 # (coords_q, _, _) = load_data("../test/data/snapshot_000.hdf5")
 # (coords_x, vels, _) = load_data("../test/data/snapshot_002.hdf5")
 ```
