@@ -7,5 +7,5 @@ module PhaseSpaceDTFE
     include("ps_dtfe_subbox.jl")
 
     export SimBox, PS_DTFE, density, numberOfStreams, velocity, velocitySum
-    export PS_DTFE_subbox, density_subbox, numberOfStreams_subbox, velocity_subbox, velocitySum_subbox, get_coords_chunk
+    export PS_DTFE_subbox, ps_dtfe_subbox, density_subbox, numberOfStreams_subbox, velocity_subbox, velocitySum_subbox, get_coords_chunk
 end
