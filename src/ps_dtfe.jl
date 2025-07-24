@@ -5,9 +5,8 @@ Sets the size and resolution of the simulation box.
 
 # Examples
 ```julia-repl
-L = 100
-Ni = 64
-julia> SimBox(L, Ni)
+julia> SimBox(100, 64)
+SimBox(100.0, 64)
 ```
 """
 struct SimBox
