@@ -1,3 +1,15 @@
+"""
+    SimBox(L, Ni)
+
+Sets the size and resolution of the simulation box.
+
+# Examples
+```julia-repl
+L = 100
+Ni = 64
+julia> SimBox(L, Ni)
+```
+"""
 struct SimBox
     L::Float64
     Ni::Int64

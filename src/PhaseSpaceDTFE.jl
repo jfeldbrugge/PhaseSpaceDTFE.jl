@@ -8,5 +8,5 @@ module PhaseSpaceDTFE
 
     export SimBox, PS_DTFE, density, numberOfStreams, velocity, velocitySum
     # Temporary
-    export ps_dtfe_subbox, density_subbox
+    export PS_DTFE_subbox, ps_dtfe_subbox, density_subbox
 end
