@@ -55,7 +55,8 @@ depth = 7
 ```
 
 Finally, we evaluate the density field 
-<!-- ```@example tutorial1
+```@example tutorial1
+1+1
 # Range = 0.:0.2:100.
 
 # coords_arr  = [[L/2., y, z] for y in Range, z in Range]
@@ -63,5 +64,5 @@ Finally, we evaluate the density field
 # density_field = density_subbox(coords_arr,  ps_dtfe_sb)
 
 # heatmap(Range, Range,log10.(density_field), aspect_ratio=:equal, xlims=(0, L), ylims=(0, L), c=:grays) 
-``` -->
+```
 
