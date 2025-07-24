@@ -55,11 +55,6 @@ sim_box = SimBox(L, Ni)  # note that need this custom struct for subbox
 nothing
 ```
 
-```@example tutorial1
-m = load_mass("data/snapshot_000.hdf5")
-(coords_q, _, _) = load_data("data/snapshot_000.hdf5")
-(coords_x, vels, _) = load_data("data/snapshot_002.hdf5")
-```
 
 ```@example tutorial1
 ## process data: unwrapping from periodic boundary conditions and framing coordinates periodically around box
@@ -76,14 +71,14 @@ depth = 7
 box = [0 L; 0 L; 0 L]
 
 ## construct estimator
-ps_dtfe = PS_DTFE(coords_q_, coords_x_, vels_, m, depth, box)
+# ps_dtfe = PS_DTFE(coords_q_, coords_x_, vels_, m, depth, box)
 ```
 
 Finally, we evaluate the density field 
 ```@example tutorial1
-Range = 0.:0.2:100.
+# Range = 0.:0.2:100.
 
-coords_arr  = [[L/2., y, z] for y in Range, z in Range]
+# coords_arr  = [[L/2., y, z] for y in Range, z in Range]
 
 # density_field = density_subbox(coords_arr,  ps_dtfe_sb)
 
