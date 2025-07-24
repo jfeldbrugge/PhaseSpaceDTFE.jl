@@ -40,28 +40,28 @@ m = load_mass("../../test/data/snapshot_000.hdf5")
 Next, we pre-process and compute the Phase-Space DTFE objects.
 
 ```@example tutorial1
-depth = 7
-sim_box = SimBox(L, Ni)  # note that need this custom struct for subbox
+# depth = 7
+# sim_box = SimBox(L, Ni)  # note that need this custom struct for subbox
 
-## construct estimators with velocities
-ps_dtfe_sb = ps_dtfe_subbox(coords_q, coords_x, vels, m, depth, sim_box; N_target=32)
+# ## construct estimators with velocities
+# ps_dtfe_sb = ps_dtfe_subbox(coords_q, coords_x, vels, m, depth, sim_box; N_target=32)
 
-## construct estimator without velocities
-#ps_dtfe = ps_dtfe_subbox(coords_q, coords_x, m, depth, sim_box; N_target=32)
+# ## construct estimator without velocities
+# #ps_dtfe = ps_dtfe_subbox(coords_q, coords_x, m, depth, sim_box; N_target=32)
 
-# it is recommended to save the estimator object (holding the subbox references) for further use
-save("ps_dtfe_sb.jld2", "ps-dtfe-sb", ps_dtfe_sb)
-ps_dtfe_sb = load("ps_dtfe_sb.jld2")["ps-dtfe-sb"]
+# # it is recommended to save the estimator object (holding the subbox references) for further use
+# save("ps_dtfe_sb.jld2", "ps-dtfe-sb", ps_dtfe_sb)
+# ps_dtfe_sb = load("ps_dtfe_sb.jld2")["ps-dtfe-sb"]
 ```
 
 Finally, we evaluate the density field 
 ```@example tutorial1
-Range = 0.:0.2:100.
+# Range = 0.:0.2:100.
 
-coords_arr  = [[L/2., y, z] for y in Range, z in Range]
+# coords_arr  = [[L/2., y, z] for y in Range, z in Range]
 
-density_field = density_subbox(coords_arr,  ps_dtfe_sb)
+# density_field = density_subbox(coords_arr,  ps_dtfe_sb)
 
-heatmap(Range, Range,log10.(density_field), aspect_ratio=:equal, xlims=(0, L), ylims=(0, L), c=:grays) 
+# heatmap(Range, Range,log10.(density_field), aspect_ratio=:equal, xlims=(0, L), ylims=(0, L), c=:grays) 
 ```
 
