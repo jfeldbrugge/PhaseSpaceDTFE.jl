@@ -1,70 +1,70 @@
-function unwrap_x_(q, x, L)
-    unwrap_s.(x - q, L) + q
-end
+# function unwrap_x_(q, x, L)
+#     unwrap_s.(x - q, L) + q
+# end
 
-unwrap_s(s, L) = mod((s + L / 2), L) - L / 2
+# unwrap_s(s, L) = mod((s + L / 2), L) - L / 2
 
-function translate(coords_q, coords_x, L)
-    coords_q_ = copy(coords_q)
-    coords_x_ = copy(coords_x)
+# function translate(coords_q, coords_x, L)
+#     coords_q_ = copy(coords_q)
+#     coords_x_ = copy(coords_x)
 
-    let index_x = coords_x .< 0.
-        coords_q_[index_x] .+= L
-        coords_x_[index_x] .+= L
-    end
+#     let index_x = coords_x .< 0.
+#         coords_q_[index_x] .+= L
+#         coords_x_[index_x] .+= L
+#     end
         
-    let index_x = coords_x .> L
-        coords_q_[index_x] .-= L
-        coords_x_[index_x] .-= L
-    end
-    return coords_q_, coords_x_
-end
+#     let index_x = coords_x .> L
+#         coords_q_[index_x] .-= L
+#         coords_x_[index_x] .-= L
+#     end
+#     return coords_q_, coords_x_
+# end
 
-function frame(coords_q, coords_x, L, pad=0.05)
-    for d in 1:3
-        indexL = coords_x[:,d] .> (1. - pad) * L
-        indexR = coords_x[:,d] .< pad * L
+# function frame(coords_q, coords_x, L, pad=0.05)
+#     for d in 1:3
+#         indexL = coords_x[:,d] .> (1. - pad) * L
+#         indexR = coords_x[:,d] .< pad * L
 
-        newPointsL_q = coords_q[indexL, :]
-        newPointsL_x = coords_x[indexL, :]
-        newPointsL_q[:,d] .-= L 
-        newPointsL_x[:,d] .-= L 
+#         newPointsL_q = coords_q[indexL, :]
+#         newPointsL_x = coords_x[indexL, :]
+#         newPointsL_q[:,d] .-= L 
+#         newPointsL_x[:,d] .-= L 
         
-        newPointsR_q = coords_q[indexR, :]
-        newPointsR_x = coords_x[indexR, :]
-        newPointsR_q[:,d] .+= L 
-        newPointsR_x[:,d] .+= L 
+#         newPointsR_q = coords_q[indexR, :]
+#         newPointsR_x = coords_x[indexR, :]
+#         newPointsR_q[:,d] .+= L 
+#         newPointsR_x[:,d] .+= L 
 
-        coords_q = vcat(coords_q, newPointsL_q)        
-        coords_q = vcat(coords_q, newPointsR_q)
-        coords_x = vcat(coords_x, newPointsL_x)        
-        coords_x = vcat(coords_x, newPointsR_x)
-    end
+#         coords_q = vcat(coords_q, newPointsL_q)        
+#         coords_q = vcat(coords_q, newPointsR_q)
+#         coords_x = vcat(coords_x, newPointsL_x)        
+#         coords_x = vcat(coords_x, newPointsR_x)
+#     end
 
-    return coords_q, coords_x
-end
+#     return coords_q, coords_x
+# end
 
-function frame_velocities(coords_x, velocities, L, pad=0.05)
-    for d in 1:3
-        indexL = coords_x[:,d] .> (1. - pad) * L
-        indexR = coords_x[:,d] .< pad * L
+# function frame_velocities(coords_x, velocities, L, pad=0.05)
+#     for d in 1:3
+#         indexL = coords_x[:,d] .> (1. - pad) * L
+#         indexR = coords_x[:,d] .< pad * L
 
-        newVelocitiesL = velocities[indexL, :]
-        newPointsL_x   = coords_x[indexL, :]
-        newPointsL_x[:,d] .-= L 
+#         newVelocitiesL = velocities[indexL, :]
+#         newPointsL_x   = coords_x[indexL, :]
+#         newPointsL_x[:,d] .-= L 
         
-        newVelocitiesR = velocities[indexR, :]
-        newPointsR_x   = coords_x[indexR, :]
-        newPointsR_x[:,d] .+= L 
+#         newVelocitiesR = velocities[indexR, :]
+#         newPointsR_x   = coords_x[indexR, :]
+#         newPointsR_x[:,d] .+= L 
 
-        coords_x = vcat(coords_x, newPointsL_x)        
-        coords_x = vcat(coords_x, newPointsR_x)
-        velocities = vcat(velocities,  newVelocitiesL)        
-        velocities = vcat(velocities,  newVelocitiesR)        
-    end
+#         coords_x = vcat(coords_x, newPointsL_x)        
+#         coords_x = vcat(coords_x, newPointsR_x)
+#         velocities = vcat(velocities,  newVelocitiesL)        
+#         velocities = vcat(velocities,  newVelocitiesR)        
+#     end
 
-    return velocities
-end
+#     return velocities
+# end
 
 
 
@@ -78,10 +78,10 @@ struct PS_DTFE_subbox
     Ni::Int64
 end
 
-struct SimBox
-    L::Float64
-    Ni::Int64
-end
+# struct SimBox
+#     L::Float64
+#     Ni::Int64
+# end
 
 function ps_dtfe_subbox(coords_q, coords_x, m, depth, sim_box::SimBox; N_target=128, pad=0.05, dir="./ps_dtfe")
 

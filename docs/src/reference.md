@@ -1,10 +1,10 @@
 ```@meta
-CurrentModule = PSDTFE
+CurrentModule = PhaseSpaceDTFE
 ```
 
 ```@index
 ```
 
 ```@autodocs
-Modules = [PSDTFE]
+Modules = [PhaseSpaceDTFE]
 ```

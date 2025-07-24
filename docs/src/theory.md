@@ -1,5 +1,5 @@
 ```@meta
-CurrentModule = PSDTFE
+CurrentModule = PhaseSpaceDTFE
 ```
 
 # Theory

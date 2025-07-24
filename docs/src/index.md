@@ -1,15 +1,15 @@
 ```@meta
-CurrentModule = PSDTFE
+CurrentModule = PhaseSpaceDTFE
 ```
 
 # Phase-Space DTFE
 
-Documentation for [PSDTFE](https://github.com/jfeldbrugge/PSDTFE.jl).
+Documentation for [PhaseSpaceDTFE](https://github.com/jfeldbrugge/PhaseSpaceDTFE.jl).
 
 ## Install
 
 ```julia-repl
-pkg> add https://github.com/jfeldbrugge/PSDTFE.jl
+pkg> add https://github.com/jfeldbrugge/PhaseSpaceDTFE.jl
 ```
 
 ## Contributors 
