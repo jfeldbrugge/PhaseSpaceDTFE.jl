@@ -39,7 +39,7 @@ m = load_mass("../../test/data/snapshot_000.hdf5")
 
 Next, we pre-process and compute the Phase-Space DTFE objects.
 
-```@example
+```@example tutorial1
 depth = 7
 sim_box = SimBox(L, Ni)  # note that need this custom struct for subbox
 
@@ -55,7 +55,7 @@ ps_dtfe_sb = load("ps_dtfe_sb.jld2")["ps-dtfe-sb"]
 ```
 
 Finally, we evaluate the density field 
-```@example 
+```@example tutorial1
 Range = 0.:0.2:100.
 
 coords_arr  = [[L/2., y, z] for y in Range, z in Range]
