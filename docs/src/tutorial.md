@@ -13,6 +13,9 @@ using JLD2, Plots, HDF5, ProgressMeter, PhaseSpaceDTFE
 Ni = 64
 L  = 100.
 
+depth = 5
+sim_box = SimBox(L, Ni)  # note that need this custom struct for subbox
+
 ## load data 
 function load_data(file)
     fid = h5open(file, "r")
@@ -36,12 +39,22 @@ m = load_mass("../../test/data/snapshot_000.hdf5")
 (coords_x, vels, _) = load_data("../../test/data/snapshot_002.hdf5")
 ```
 
-Next, we pre-process and compute the Phase-Space DTFE objects.
+## DTFE
+When setting the initial positions to the final positions of the $N$-body particles, we recover the Delaunay Tessellation Field Estimator (DTFE) method
+```@example tutorial1
+Range = 0.:0.2:100.
+coords_arr  = [[L/2., y, z] for y in Range, z in Range]
+
+dtfe_sb = ps_dtfe_subbox(coords_x, coords_x, vels, m, depth, sim_box; N_target=32)
+density_field = density_subbox(coords_arr, dtfe_sb)
+heatmap(Range, Range, log10.(density_field), aspect_ratio=:equal, xlims=(0, L), ylims=(0, L), c=:grays, xlabel="[Mpc]", ylabel="[Mpc]") 
+```
+
+## PS-DTFE
+
+For the Phase-Space Delaunay Tessellation Field Estimator (PS-DTFE), use the same routine using both the initial and final positions and velocities of the $N$-body particles.
 
 ```@example tutorial1
-depth = 5
-sim_box = SimBox(L, Ni)  # note that need this custom struct for subbox
-
 ## construct estimators with velocities
 ps_dtfe_sb = ps_dtfe_subbox(coords_q, coords_x, vels, m, depth, sim_box; N_target=32)
 
@@ -54,26 +67,21 @@ ps_dtfe_sb = load("ps_dtfe_sb.jld2")["ps-dtfe-sb"]
 nothing
 ```
 
-Finally, we evaluate the density field 
+We evaluate the density field 
 ```@example tutorial1
-Range = 0.:0.2:100.
-coords_arr  = [[L/2., y, z] for y in Range, z in Range]
 density_field = density_subbox(coords_arr, ps_dtfe_sb)
 heatmap(Range, Range, log10.(density_field), aspect_ratio=:equal, xlims=(0, L), ylims=(0, L), c=:grays, xlabel="[Mpc]", ylabel="[Mpc]") 
 ```
 the number of streams
 ```@example tutorial1
-Range = 0.:0.2:100.
-coords_arr  = [[L/2., y, z] for y in Range, z in Range]
 number_field = numberOfStreams_subbox(coords_arr, ps_dtfe_sb)
 heatmap(Range, Range, log10.(number_field), aspect_ratio=:equal, xlims=(0, L), ylims=(0, L), xlabel="[Mpc]", ylabel="[Mpc]") 
 ```
-
-When setting the initial positions to the final positions of the $N$-body particles, we recover the DTFE method
+and the mass weighted velocity field
 ```@example tutorial1
-dtfe_sb = ps_dtfe_subbox(coords_x, coords_x, vels, m, depth, sim_box; N_target=32)
-density_field = density_subbox(coords_arr, ps_dtfe_sb)
-heatmap(Range, Range, log10.(density_field), aspect_ratio=:equal, xlims=(0, L), ylims=(0, L), c=:grays, xlabel="[Mpc]", ylabel="[Mpc]") 
+Range = 0.:0.2:100.
+coords_arr  = [[L/2., y, z] for y in Range, z in Range]
+velocitySum_field = velocitySum_subbox(coords_arr, ps_dtfe_sb)
 ```
 
 Clear temporary files
