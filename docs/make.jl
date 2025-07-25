@@ -1,3 +1,5 @@
+ENV["JULIA_PROGRESS"] = "false"
+
 using PhaseSpaceDTFE
 using Documenter
 
