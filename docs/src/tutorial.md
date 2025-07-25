@@ -4,7 +4,7 @@ CurrentModule = PhaseSpaceDTFE
 
 # Tutorial
 
-We use the PhaseSpaceDTFE package to estimate the density and velocity fields of a GADGET-4 simulation. First, we load the data
+We use the PhaseSpaceDTFE package to estimate the density and velocity fields of a GADGET-4 simulation. First, we load the data.
 
 ```@example tutorial1
 using JLD2, Plots, HDF5, ProgressMeter, PhaseSpaceDTFE
@@ -14,7 +14,7 @@ Ni = 64
 L  = 100.
 
 depth = 5
-sim_box = SimBox(L, Ni)  # note that need this custom struct for subbox
+sim_box = SimBox(L, Ni)   ## need this structure for estimator creation
 
 ## load data 
 function load_data(file)
@@ -39,52 +39,31 @@ m = load_mass("../../test/data/snapshot_000.hdf5")
 (coords_x, vels, _) = load_data("../../test/data/snapshot_002.hdf5")
 ```
 
-## The Delaunay Tessellation Field Estimator
-When setting the initial positions to the final positions of the $N$-body particles, we recover the Delaunay Tessellation Field Estimator (DTFE) method
+## The Phase-Space Delaunay Tessellation Field Estimator — basic implementation
+
 ```@example tutorial1
 Range = 0.:0.2:100.
-coords_arr  = [[L/2., y, z] for y in Range, z in Range]
 
-dtfe_sb = ps_dtfe_subbox(coords_x, coords_x, vels, m, depth, sim_box; N_target=32)
-density_field = density_subbox(coords_arr, dtfe_sb)
-heatmap(Range, Range, log10.(density_field), aspect_ratio=:equal, xlims=(0, L), ylims=(0, L), c=:grays, xlabel="[Mpc]", ylabel="[Mpc]") 
+## construct estimator
+ps_dtfe = PS_DTFE_periodic(coords_q, coords_x, vels, m, depth, sim_box)
+
+## if want to ignore velocities
+#ps_dtfe = PS_DTFE(coords_q, coords_x, zeros(size(v_x)[1], 3), m, depth, box)
+
+# evaluate density field
+density_field = [PhaseSpaceDTFE.density([L/2., y, z], ps_dtfe) for y in Range, z in Range]
+heatmap(Range, Range, log10.(density_field), aspect_ratio=:equal, xlims=(0, L), ylims=(0, L), c=:grays, xlabel="[Mpc]", ylabel="[Mpc]")
 ```
 
-## The Phase-Space Delaunay Tessellation Field Estimator
-For the Phase-Space Delaunay Tessellation Field Estimator (PS-DTFE), use the same routine using both the initial and final positions and velocities of the $N$-body particles.
+The corresponding number of streams field is evaluated as follows:
 
 ```@example tutorial1
-## construct estimators with velocities
-ps_dtfe_sb = ps_dtfe_subbox(coords_q, coords_x, vels, m, depth, sim_box; N_target=32)
-
-## construct estimator without velocities
-# ps_dtfe_sb = ps_dtfe_subbox(coords_q, coords_x, m, depth, sim_box; N_target=32)
-
-## it is recommended to save the estimator object (holding the subbox references) for further use
-save("ps_dtfe_sb.jld2", "ps-dtfe-sb", ps_dtfe_sb)
-ps_dtfe_sb = load("ps_dtfe_sb.jld2")["ps-dtfe-sb"]
-nothing
+nstreams_field = [numberOfStreams([L/2., y, z], ps_dtfe) for y in Range, z in Range]
+heatmap(Range, Range, nstreams_field, aspect_ratio=:equal, xlims=(0, L), ylims=(0, L), clim=(1, 7), xlabel="[Mpc]", ylabel="[Mpc]")
 ```
 
-We evaluate the density field 
-```@example tutorial1
-density_field = density_subbox(coords_arr, ps_dtfe_sb)
-heatmap(Range, Range, log10.(density_field), aspect_ratio=:equal, xlims=(0, L), ylims=(0, L), c=:grays, xlabel="[Mpc]", ylabel="[Mpc]") 
-```
-the number of streams
-```@example tutorial1
-number_field = numberOfStreams_subbox(coords_arr, ps_dtfe_sb)
-heatmap(Range, Range, log10.(number_field), aspect_ratio=:equal, xlims=(0, L), ylims=(0, L), xlabel="[Mpc]", ylabel="[Mpc]") 
-```
-and the mass weighted velocity field
-```@example tutorial1
-Range = 0.:0.2:100.
-coords_arr  = [[L/2., y, z] for y in Range, z in Range]
-velocitySum_field = velocitySum_subbox(coords_arr, ps_dtfe_sb)
-```
+Similarly, the velocity field is evaluated as:
 
-Clear temporary files
 ```@example tutorial1
-rm("ps_dtfe", recursive=true)
-rm("ps_dtfe_sb.jld2")
+vel_field = [velocity([L/2., y, z], ps_dtfe) for y in Range, z in Range]
 ```
