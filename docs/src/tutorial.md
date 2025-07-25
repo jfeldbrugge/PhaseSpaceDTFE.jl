@@ -71,21 +71,23 @@ heatmap(Range, Range, log10.(density_field), aspect_ratio=:equal, xlims=(0, L), 
 The corresponding number of streams field is evaluated as follows:
 
 ```@example tutorial1
-#nstreams_field = [numberOfStreams([L/2., y, z], ps_dtfe) for y in Range, z in Range]
-#heatmap(Range, Range, nstreams_field, aspect_ratio=:equal, xlims=(0, L), ylims=(0, L), clim=(1, 7), xlabel="[Mpc]", ylabel="[Mpc]")
+nstreams_field = [numberOfStreams([L/2., y, z], ps_dtfe) for y in Range, z in Range]
+heatmap(Range, Range, nstreams_field, aspect_ratio=:equal, xlims=(0, L), ylims=(0, L), clim=(1, 7), xlabel="[Mpc]", ylabel="[Mpc]")
 ```
 
 Similarly, the velocity field is evaluated with the `velocity()`-function.
 
 ```@example tutorial1
-#vel_field = [velocity([L/2., y, z], ps_dtfe) for y in Range, z in Range]
+vel_field = [velocity([L/2., y, z], ps_dtfe) for y in Range, z in Range]
 ```
 
 In multistream regions, the `velocity()`-function returns the velocities of the individual streams (or NaN if `single_stream=true` is set in the function). To obtain the stream-mass weighted summation of the velocities, call the `velocitySum()`-function (reducing to `velocity()` in single-stream regions):
 
 
 ```@example tutorial1
-#vel_field = [velocitySum([L/2., y, z], ps_dtfe) for y in Range, z in Range]
+vel_field = [velocitySum([L/2., y, z], ps_dtfe) for y in Range, z in Range]
 ```
 
 ## Phase-Space Delaunay Tessellation Field Estimator — subbox implementation
+
+To be added....
