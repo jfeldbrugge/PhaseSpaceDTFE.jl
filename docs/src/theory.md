@@ -12,10 +12,10 @@ The evolution of our universe can be described in Lagrangian fluid dynamics in t
 
 The Phase-Space DTFE method implements this density field, and the associated velocity fields for cosmological $N$-body simulations using both Delaunay tessellations and phase-space methods.
 
-## The Delaunay Tessellation Field Estimator (DTFE)
+## The Delaunay Tessellation Field Estimator
 The DTFE method converts the current positions of the $N$-body particles and their velocities in to an estimate of the density and velocity fields in Eulerian space.
 
-## The Phase-Space Delaunay Tessellation Field Estimator (PS-DTFE)
+## The Phase-Space Delaunay Tessellation Field Estimator
 The PS-DTFE method extends the DTFE method to phase-space.
 
 

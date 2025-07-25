@@ -39,7 +39,7 @@ m = load_mass("../../test/data/snapshot_000.hdf5")
 (coords_x, vels, _) = load_data("../../test/data/snapshot_002.hdf5")
 ```
 
-## DTFE
+## The Delaunay Tessellation Field Estimator
 When setting the initial positions to the final positions of the $N$-body particles, we recover the Delaunay Tessellation Field Estimator (DTFE) method
 ```@example tutorial1
 Range = 0.:0.2:100.
@@ -50,8 +50,7 @@ density_field = density_subbox(coords_arr, dtfe_sb)
 heatmap(Range, Range, log10.(density_field), aspect_ratio=:equal, xlims=(0, L), ylims=(0, L), c=:grays, xlabel="[Mpc]", ylabel="[Mpc]") 
 ```
 
-## PS-DTFE
-
+## The Phase-Space Delaunay Tessellation Field Estimator
 For the Phase-Space Delaunay Tessellation Field Estimator (PS-DTFE), use the same routine using both the initial and final positions and velocities of the $N$-body particles.
 
 ```@example tutorial1
