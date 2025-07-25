@@ -4,7 +4,7 @@ CurrentModule = PhaseSpaceDTFE
 
 # Tutorial
 
-We use the PhaseSpaceDTFE package to estimate the density and velocity fields of a GadGet-4 simulation. First, we load the data
+We use the PhaseSpaceDTFE package to estimate the density and velocity fields of a GADGET-4 simulation. First, we load the data
 
 ```@example tutorial1
 using JLD2, Plots, HDF5, ProgressMeter, PhaseSpaceDTFE
@@ -43,10 +43,10 @@ depth = 5
 sim_box = SimBox(L, Ni)  # note that need this custom struct for subbox
 
 ## construct estimators with velocities
-# ps_dtfe_sb = ps_dtfe_subbox(coords_q, coords_x, vels, m, depth, sim_box; N_target=32)
+ps_dtfe_sb = ps_dtfe_subbox(coords_q, coords_x, vels, m, depth, sim_box; N_target=32)
 
 # ## construct estimator without velocities
-ps_dtfe_sb = ps_dtfe_subbox(coords_q, coords_x, m, depth, sim_box; N_target=32)
+# ps_dtfe_sb = ps_dtfe_subbox(coords_q, coords_x, m, depth, sim_box; N_target=32)
 
 # # it is recommended to save the estimator object (holding the subbox references) for further use
 save("ps_dtfe_sb.jld2", "ps-dtfe-sb", ps_dtfe_sb)
@@ -57,11 +57,22 @@ nothing
 Finally, we evaluate the density field 
 ```@example tutorial1
 Range = 0.:0.2:100.
-
 coords_arr  = [[L/2., y, z] for y in Range, z in Range]
-
 density_field = density_subbox(coords_arr, ps_dtfe_sb)
+heatmap(Range, Range, log10.(density_field), aspect_ratio=:equal, xlims=(0, L), ylims=(0, L), c=:grays) 
+```
+the number of streams
+```@example tutorial1
+Range = 0.:0.2:100.
+coords_arr  = [[L/2., y, z] for y in Range, z in Range]
+number_field = numberOfStreams_subbox(coords_arr, ps_dtfe_sb)
+heatmap(Range, Range, log10.(number_field), aspect_ratio=:equal, xlims=(0, L), ylims=(0, L)) 
+```
 
+When setting the initial positions to the final positions of the $N$-body particles, we recover the DTFE method
+```@example tutorial1
+dtfe_sb = ps_dtfe_subbox(coords_x, coords_x, vels, m, depth, sim_box; N_target=32)
+density_field = density_subbox(coords_arr, ps_dtfe_sb)
 heatmap(Range, Range, log10.(density_field), aspect_ratio=:equal, xlims=(0, L), ylims=(0, L), c=:grays) 
 ```
 
