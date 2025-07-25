@@ -45,10 +45,10 @@ sim_box = SimBox(L, Ni)  # note that need this custom struct for subbox
 ## construct estimators with velocities
 ps_dtfe_sb = ps_dtfe_subbox(coords_q, coords_x, vels, m, depth, sim_box; N_target=32)
 
-# ## construct estimator without velocities
+## construct estimator without velocities
 # ps_dtfe_sb = ps_dtfe_subbox(coords_q, coords_x, m, depth, sim_box; N_target=32)
 
-# # it is recommended to save the estimator object (holding the subbox references) for further use
+## it is recommended to save the estimator object (holding the subbox references) for further use
 save("ps_dtfe_sb.jld2", "ps-dtfe-sb", ps_dtfe_sb)
 ps_dtfe_sb = load("ps_dtfe_sb.jld2")["ps-dtfe-sb"]
 nothing
