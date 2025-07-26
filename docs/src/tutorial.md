@@ -46,7 +46,7 @@ m = load_mass("../../test/data/snapshot_000.hdf5")
 ps_dtfe = PS_DTFE_periodic(coords_x, coords_x, vels, m, depth, sim_box)
 
 # evaluate density field
-Range = 0.:0.2:100.
+Range 0:2.0:100.
 density_field = [PhaseSpaceDTFE.density([L/2., y, z], ps_dtfe) for y in Range, z in Range]
 heatmap(Range, Range, log10.(density_field), aspect_ratio=:equal, xlims=(0, L), ylims=(0, L), c=:grays, xlabel="[Mpc]", ylabel="[Mpc]")
 ```
@@ -60,8 +60,6 @@ ps_dtfe = PS_DTFE_periodic(coords_q, coords_x, vels, m, depth, sim_box)
 
 ## if want to ignore velocities
 #ps_dtfe = PS_DTFE(coords_q, coords_x, zeros(size(v_x)[1], 3), m, depth, box)
-
-Range = 0.:0.2:100.
 
 # evaluate density field
 density_field = [PhaseSpaceDTFE.density([L/2., y, z], ps_dtfe) for y in Range, z in Range]
@@ -117,8 +115,6 @@ heatmap(Range, Range, log10.(number_field), aspect_ratio=:equal, xlims=(0, L), y
 ```
 and the mass weighted velocity field
 ```@example tutorial1
-Range = 0.:0.2:100.
-coords_arr  = [[L/2., y, z] for y in Range, z in Range]
 velocitySum_field = velocitySum_subbox(coords_arr, ps_dtfe_sb)
 ```
 
