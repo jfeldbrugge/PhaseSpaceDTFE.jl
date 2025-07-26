@@ -14,7 +14,7 @@ Consider the pointset $\mathcal{P}$ consisting of $N$ labaled points $p_i \in \m
 ### Density reconstruction
 Given the pointset $\mathcal{P}$, consider the Delaunay tesselation $\mathcal{D}$ consisting of $N_T$ labelled simplices $D_i$, with $i=1,\dots, N_T$. In two dimensions, a simplex is a triangle spanning three points in $\mathcal{P}$. In three dimensions, a simplex is a tetrahedron spanning four points in $\mathcal{P}$.
 
-![Alt text](assets/figures/Delaunay.png " A two-dimensional Delaunay tessellation with the circumscribed circles. The Delaunay tesselation has the property that no vertex is in the circumcribed circle of a triangle.")
+![Alt text](assets/figures/Delaunay.png "A two-dimensional Delaunay tessellation with the circumscribed circles. The Delaunay tesselation has the property that no vertex is in the circumcribed circle of a triangle.")
 
 Let's assume we can associate a (to be determined) density estimate $\rho_i$ to each point in $\mathcal{P}$. Given a symplex $D \in \mathcal{D}$ spanned by the vertices $p_{l_0},\dots, p_{l_d} \in \mathcal{P}$, with the corresponding densities $\rho_{l_0}, \dots, \rho_{l_d}$, we construct a linear interpolation of the density field in the simplex 
 
