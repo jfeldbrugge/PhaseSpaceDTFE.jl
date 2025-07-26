@@ -20,11 +20,13 @@ Given the pointset $\mathcal{P}$, consider the Delaunay tesselation $\mathcal{D}
 
 Let's assume we can associate a (to be determined) density estimate $\rho_i$ to each point in $\mathcal{P}$. Given a symplex $D \in \mathcal{D}$ spanned by the vertices $p_{l_0},\dots, p_{l_d} \in \mathcal{P}$, with the corresponding densities $\rho_{l_0}, \dots, \rho_{l_d}$, we construct a linear interpolation of the density field in the simplex 
 
-$$\rho(x) = \rho_{l_0} + [\nabla \rho] (x-p_{l_0}),$$
+```math
+\rho(x) = \rho_{l_0} + [\nabla \rho] (x-p_{l_0}),
+```
 
 with $x \in D$ and the gradient vector $\nabla \rho\in \mathbb{R}^d$ associated to the simplex determined by the $d$ linear consistency relations $\rho(p_{l_i}) = \rho_{l_i}$ for $i=1,\dots,d$. In matrix notation,
 
-$$
+```math
 \nabla \rho = 
 \begin{pmatrix}
 p_{l_1}-p_{l_0}\\
@@ -36,32 +38,34 @@ p_{l_d}-p_{l_0}\\
 \vdots\\
 \rho_d-\rho_0\\
 \end{pmatrix}.
-$$
+```
 
 This system of equations is solvable when non of the points $p_{l_0}, \dots, p_{l_d}$ are collinear. The integral over the linear interpolation yields
 
-$$\int_D \rho(x)\mathrm{d}x = \frac{V(D)}{d+1} \sum_{i \in D} \rho_i ,$$
+```math
+\int_D \rho(x)\mathrm{d}x = \frac{V(D)}{d+1} \sum_{i \in D} \rho_i ,
+```
 
 with $V(D)$ the volume of the simplex $D$ and $i$ the labels of the vertices of $D$ in $\mathcal{P}$. Note that the volume of a simplex $D$ spanned by $p_{l_0}, \dots, p_{l_d}$ can be expressed as the determinant
 
-$$
+```math
 V(D) = \frac{1}{d!}
 \begin{vmatrix}
 p_{l_1}-p_{l_0}\\
 \vdots\\
 p_{l_d}-p_{l_0}\\
 \end{vmatrix}.
-$$
+```
 
 The integral over density -- assuming the density vanishes outside of the convex hull of the Delaunay tesselation -- takes the form
 
-$$
+```math
 \begin{align}
 \int \rho(x) \mathrm{d}x 
 &= \sum_{i=1}^{N_T} \int_{D_i} \rho(x)\mathrm{d}x\\
 &= \frac{1}{d+1} \sum_{i=1}^{N_T} V(D_i) \sum_{j \in D_i} \rho_j,
 \end{align}
-$$
+```
 
 where the first sum runs over the simplices of the tessellation and the second sum runs over the vertices of a given simplex. Note that $\rho_i$ enters the sum for each simplex for which it is a vertex. These simplices form the star $W_i$ of the point $p_i$
 
@@ -73,21 +77,21 @@ where the first sum runs over the simplices of the tessellation and the second s
 
 Using this observation, we reorder the double sum, by collecting the terms involving $\rho_i$ leading to the terms $\rho_i(V(D_{l_0}) + \dots + V(D_{l_n})) = \rho_i V(W_i)$, with the $D_{l_i}$'s forming the star of $p_i$. The integral over the density is now a single sum over the points in $\mathcal{P}$, *i.e.,*
 
-$$
+```math
 \int \rho(x) \mathrm{d}x =\frac{1}{d+1} \sum_{i=1}^N \rho_i V(W_i).
-$$
+```
 
 The key observation in DTFE is that when we chose the natural estimate of the density,
 
-$$
+```math
 \rho_i = \frac{(d+1) m_i}{V(W_i)},
-$$
+```
 
 by which the density at $p_i$ only depends on the mass at the point and the local geometry, the integral over the density reduces to the total mass of the point set
 
-$$
+```math
 \int \rho(x)\mathrm{d}x = \sum_{i=1}^N m_i
-$$
+```
 
 as one might expect of a density reconstruction method.
 
@@ -96,13 +100,13 @@ Now, given a point $x \in \mathbb{R}^d$, we can reconstruct the density field at
 ### Velocity reconstruction
 The velocity field of the dataset can be analogously reconstructed reconstructed with an linear interpolation in the Delaunay cells. Given a simplex $D$ spanned by the vertices $p_{l_0}, \dots, p_{l_d}$ and the associated velocities $v_{l_0},\dots,v_{l_d}$, we write the velocity field in the simplex $D$ as
 
-$$
-v(x) = v_{l_0} + [\nabla v] (x - p_{l_0})
-$$
+```math
+v(x) = v_{l_0} + \nabla v (x - p_{l_0})
+```
 
 with the velocity gradient $\nabla v$ associated to the simplex determined by the linear consistency relations $v(p_{l_i}) = v_{l_i}$ for $i=1,\dots,d$. In matrix notation,
 
-$$
+```math
 \nabla v = 
 \begin{pmatrix}
 p_{l_1}-p_{l_0}\\
@@ -114,28 +118,28 @@ v_1-v_0\\
 \vdots\\
 v_d-v_0\\
 \end{pmatrix}.
-$$
+```
 
 Now, given a point $x \in \mathbb{R}^d$, we can reconstruct the velocity field at this point by finding the simplex in which the point lays and evaluating the corresponding linear interpolation in the simplex.
 
 Note that the gradient $\nabla v$ is a piecewise constant function. Given the gradient $\nabla v$ for each simplex, it is natural to evaluate velocity deformation modes. In two dimensions, we evaluate the divergence $\theta$ and the curl $\omega$ defined by
 
-$$
+```math
 \begin{align}
 \theta &= \nabla \cdot v = \frac{\partial v_x}{\partial x} + \frac{\partial v_y}{\partial y},\\
 \omega &= \frac{\partial v_y}{\partial x} - \frac{\partial v_x}{\partial y}.
 \end{align}
-$$
+```
 
 In three dimensions, we evaluate the divergence $\theta$, the shear $\sigma_{ij}$ and the vorticity $\omega = \epsilon^{ijk} \omega_{ij}$ defined by
 
-$$
+```math
 \begin{align}
 \theta &= \nabla \cdot v = \frac{\partial v_x}{\partial x} + \frac{\partial v_y}{\partial y} + \frac{\partial v_z}{\partial z},\\
 \sigma_{ij} &= \frac{1}{2} \left[\frac{\partial v_i}{\partial x_j} + \frac{\partial v_j}{\partial x_i}\right] - \frac{1}{3} (\nabla \cdot v) \delta_{ij},\\
 \omega_{ij} &=\frac{1}{2} \left[\frac{\partial v_i}{\partial x_j} - \frac{\partial v_j}{\partial x_i}\right].
 \end{align}
-$$
+```
 
 with the Kronecker delta $\delta_{ij}$ and the Levi-Civita symbol $\epsilon^{ijk}$.
 
