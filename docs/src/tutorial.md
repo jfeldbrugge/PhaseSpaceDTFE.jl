@@ -6,7 +6,7 @@ CurrentModule = PhaseSpaceDTFE
 
 In this tutorial, we demonstrate the usage of the *PhaseSpaceDTFE* package to estimate the density and velocity fields from a *GADGET-4* simulation.
 
-We start by importing the relevant libraries and loading the data.
+We start by importing the relevant libraries and loading the data:
 
 ```@example tutorial1
 using JLD2, Plots, HDF5, ProgressMeter, PhaseSpaceDTFE
@@ -15,6 +15,8 @@ using JLD2, Plots, HDF5, ProgressMeter, PhaseSpaceDTFE
 Ni = 64
 L  = 100.
 sim_box = SimBox(L, Ni)   ## need this for estimator creation
+
+depth   = 5   # depth of estimator search tree
 
 ## load data 
 function load_data(file)
@@ -39,18 +41,17 @@ m = load_mass("../../test/data/snapshot_000.hdf5")
 (coords_x, vels, _) = load_data("../../test/data/snapshot_002.hdf5")
 ```
 
-The particle coordinates and velocities float matrices of size `(N, 3)`. The particle mass `m` is a single float or a matrix of size `(N, 3)` for individual particle masses.
+The particle coordinates and velocities are `Float64` matrices of size `(N, 3)`. The particle mass `m` is a single `Float64` or a matrix of size `(N, 3)` for individual particle masses.
 
 ## Prequel: Delaunay Tesselation Field Estimator
 
-Before going though through PS-DTFE method, we demonstrate the density calculation with the traditional DTFE method by constructing the estimator only on the final (*Eulerian*) particle positions. For details, see examples below.
+Before going though through PS-DTFE method, we demonstrate the traditional DTFE method by calling the PS-DTFE code only on the final (*Eulerian*) particle positions. For details, see examples below.
 
 ```@example tutorial1
 ## construct estimator
-depth   = 5   # depth of estimator search tree
 ps_dtfe = PS_DTFE_periodic(coords_x, coords_x, vels, m, depth, sim_box)
 
-# evaluate density field
+## evaluate density field
 Range = 0:2.0:100.
 density_field = [PhaseSpaceDTFE.density([L/2., y, z], ps_dtfe) for y in Range, z in Range]
 heatmap(Range, Range, log10.(density_field), aspect_ratio=:equal, xlims=(0, L), ylims=(0, L), c=:grays, xlabel="[Mpc]", ylabel="[Mpc]")
@@ -59,35 +60,41 @@ heatmap(Range, Range, log10.(density_field), aspect_ratio=:equal, xlims=(0, L), 
 
 ## Phase-Space Delaunay Tessellation Field Estimator — basic implementation
 
-We now demonstrate the use of the PS-DTFE method with the basic implementaiton suitable to simulations up to size 128^3 particles.
+We now demonstrate the use of the PS-DTFE method with the basic implementation that is suitable to simulations up to size 128^3 particles.
 
-The first step is the construction of the estimator object from the initial (*Lagrangian*) and final (*Eulerian*) positions, `coords_q` and `coords_x`.
-
-For the estimator construction, specify the box boundaries and the depth of the simplex search tree (technical details see https://academic.oup.com/mnras/article/536/1/807/7915986). Higher tree depths yield faster field evaluations, but require longer construction times. It is recommended to start with `depth=5` and increase the depth if required for higher-resolution field evaluations.
-
-The construction time should be of order 1-2 minutes for a 64^3 simulation at `depth=7`, or a 128^3 simulation at `depth=5`.
-
+The first step is the construction of the estimator object from the initial (*Lagrangian*) and final (*Eulerian*) positions, `coords_q` and `coords_x`. This is only down once as a pre-computation step.
 
 ```@example tutorial1
 ## construct estimator
 ps_dtfe = PS_DTFE_periodic(coords_q, coords_x, vels, m, depth, sim_box)
 
 ## if want to ignore velocities
-#ps_dtfe = PS_DTFE(coords_q, coords_x, zeros(size(v_x)[1], 3), m, depth, box)
+#ps_dtfe = PS_DTFE_periodic(coords_q, coords_x, m, depth, box)
 
+## for further use without pre-computation, consider saving the estimator to file
+#save("ps_dtfe.jld2, "ps-dtfe", ps_dtfe)
+```
+
+Note that `depth` specifies the simplex search tree depth in the estimator. Higher tree depths result faster field evaluations, but require longer construction times. It is recommended to start with `depth=5` and increase if required for high-resolution density fields.
+
+The construction time should be of order 1-2 minutes for a 64^3 simulation at `depth=7`, or a 128^3 simulation at `depth=5`.
+
+We now evaluate a density field with the `density()` function:
+
+```@example tutorial1
 # evaluate density field
 density_field = [PhaseSpaceDTFE.density([L/2., y, z], ps_dtfe) for y in Range, z in Range]
 heatmap(Range, Range, log10.(density_field), aspect_ratio=:equal, xlims=(0, L), ylims=(0, L), c=:grays, xlabel="[Mpc]", ylabel="[Mpc]")
 ```
 
-The corresponding number of streams field is evaluated as follows:
+The corresponding number of streams is evaluated with the `numberOfStreams()` function:
 
 ```@example tutorial1
 nstreams_field = [numberOfStreams([L/2., y, z], ps_dtfe) for y in Range, z in Range]
 heatmap(Range, Range, nstreams_field, aspect_ratio=:equal, xlims=(0, L), ylims=(0, L), clim=(1, 7), xlabel="[Mpc]", ylabel="[Mpc]")
 ```
 
-Similarly, the velocity field is evaluated with the `velocity()`-function.
+Similarly, the velocity field is evaluated with the `velocity()`-function:
 
 ```@example tutorial1
 vel_field = [velocity([L/2., y, z], ps_dtfe) for y in Range, z in Range]
