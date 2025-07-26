@@ -4,7 +4,9 @@ CurrentModule = PhaseSpaceDTFE
 
 # Tutorial
 
-We use the PhaseSpaceDTFE package to estimate the density and velocity fields of a GADGET-4 simulation. First, we load the data.
+In this tutorial, we demonstrate the usage of the *PhaseSpaceDTFE* package to estimate the density and velocity fields from a *GADGET-4* simulation.
+
+We start by importing the relevant libraries and loading the data.
 
 ```@example tutorial1
 using JLD2, Plots, HDF5, ProgressMeter, PhaseSpaceDTFE
@@ -12,9 +14,7 @@ using JLD2, Plots, HDF5, ProgressMeter, PhaseSpaceDTFE
 ## set up simulation box
 Ni = 64
 L  = 100.
-
-depth = 5
-sim_box = SimBox(L, Ni)   ## need this structure for estimator creation
+sim_box = SimBox(L, Ni)   ## need this for estimator creation
 
 ## load data 
 function load_data(file)
@@ -39,10 +39,15 @@ m = load_mass("../../test/data/snapshot_000.hdf5")
 (coords_x, vels, _) = load_data("../../test/data/snapshot_002.hdf5")
 ```
 
-## Delaunay Tesselation Field Estimator
+The particle coordinates and velocities float matrices of size `(N, 3)`. The particle mass `m` is a single float or a matrix of size `(N, 3)` for individual particle masses.
+
+## Prequel: Delaunay Tesselation Field Estimator
+
+Before going though through PS-DTFE method, we demonstrate the density calculation with the traditional DTFE method by constructing the estimator only on the final (*Eulerian*) particle positions. For details, see examples below.
 
 ```@example tutorial1
 ## construct estimator
+depth   = 5   # depth of estimator search tree
 ps_dtfe = PS_DTFE_periodic(coords_x, coords_x, vels, m, depth, sim_box)
 
 # evaluate density field
@@ -53,6 +58,15 @@ heatmap(Range, Range, log10.(density_field), aspect_ratio=:equal, xlims=(0, L), 
 
 
 ## Phase-Space Delaunay Tessellation Field Estimator — basic implementation
+
+We now demonstrate the use of the PS-DTFE method with the basic implementaiton suitable to simulations up to size 128^3 particles.
+
+The first step is the construction of the estimator object from the initial (*Lagrangian*) and final (*Eulerian*) positions, `coords_q` and `coords_x`.
+
+For the estimator construction, specify the box boundaries and the depth of the simplex search tree (technical details see https://academic.oup.com/mnras/article/536/1/807/7915986). Higher tree depths yield faster field evaluations, but require longer construction times. It is recommended to start with `depth=5` and increase the depth if required for higher-resolution field evaluations.
+
+The construction time should be of order 1-2 minutes for a 64^3 simulation at `depth=7`, or a 128^3 simulation at `depth=5`.
+
 
 ```@example tutorial1
 ## construct estimator
