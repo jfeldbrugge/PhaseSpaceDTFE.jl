@@ -40,3 +40,19 @@ m = load_mass("../../test/data/snapshot_000.hdf5")
 (coords_q, _, _) = load_data("../../test/data/snapshot_000.hdf5")
 (coords_x, vels, _) = load_data("../../test/data/snapshot_002.hdf5")
 ```
+
+The particle coordinates and velocities are `Float64` matrices of size `(N, 3)`. The particle mass `m` is a single `Float64` or a matrix of size `(N, 3)` for individual particle masses.
+
+## Prequel: Delaunay Tesselation Field Estimator
+
+Before going though through PS-DTFE method, we demonstrate the traditional DTFE method by calling the PS-DTFE code only on the final (*Eulerian*) particle positions. For details, see examples below.
+
+```@example tutorial1
+## construct estimator
+ps_dtfe = PS_DTFE_periodic(coords_x, coords_x, vels, m, depth, sim_box)
+
+## evaluate density field
+Range = 0:2.0:100.
+density_field = [PhaseSpaceDTFE.density([L/2., y, z], ps_dtfe) for y in Range, z in Range]
+heatmap(Range, Range, log10.(density_field), aspect_ratio=:equal, xlims=(0, L), ylims=(0, L), c=:grays, xlabel="[Mpc]", ylabel="[Mpc]")
+```
