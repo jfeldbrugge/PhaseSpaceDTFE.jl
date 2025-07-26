@@ -6,6 +6,8 @@ CurrentModule = PhaseSpaceDTFE
 
 Documentation for [PhaseSpaceDTFE](https://github.com/jfeldbrugge/PhaseSpaceDTFE.jl).
 
+![Density field](assets/figures/density.png)
+
 ## Install
 
 ```julia-repl

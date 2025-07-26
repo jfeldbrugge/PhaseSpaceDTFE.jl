@@ -14,7 +14,7 @@ Consider the pointset $\mathcal{P}$ consisting of $N$ labaled points $p_i \in \m
 ### Density reconstruction
 Given the pointset $\mathcal{P}$, consider the Delaunay tesselation $\mathcal{D}$ consisting of $N_T$ labelled simplices $D_i$, with $i=1,\dots, N_T$. In two dimensions, a simplex is a triangle spanning three points in $\mathcal{P}$. In three dimensions, a simplex is a tetrahedron spanning four points in $\mathcal{P}$.
 
-![Alt text](assets/figures/Delaunay.png "A two-dimensional Delaunay tessellation with the circumscribed circles. The Delaunay tesselation has the property that no vertex is in the circumcribed circle of a triangle.")
+![A two-dimensional Delaunay tessellation with the circumscribed circles. The Delaunay tesselation has the property that no vertex is in the circumcribed circle of a triangle.](assets/figures/Delaunay.png)
 
 Let's assume we can associate a (to be determined) density estimate $\rho_i$ to each point in $\mathcal{P}$. Given a symplex $D \in \mathcal{D}$ spanned by the vertices $p_{l_0},\dots, p_{l_d} \in \mathcal{P}$, with the corresponding densities $\rho_{l_0}, \dots, \rho_{l_d}$, we construct a linear interpolation of the density field in the simplex 
 
@@ -67,7 +67,7 @@ The integral over density -- assuming the density vanishes outside of the convex
 
 where the first sum runs over the simplices of the tessellation and the second sum runs over the vertices of a given simplex. Note that $\rho_i$ enters the sum for each simplex for which it is a vertex. These simplices form the star $W_i$ of the point $p_i$
 
-![Alt text](assets/figures/Star.png "Fig. 2 - The star of a vertex in a Delaunay tessellation")
+![The star of a vertex in a Delaunay tessellation](assets/figures/Star.png)
 
 
 Using this observation, we reorder the double sum, by collecting the terms involving $\rho_i$ leading to the terms $\rho_i(V(D_{l_0}) + \dots + V(D_{l_n})) = \rho_i V(W_i)$, with the $D_{l_i}$'s forming the star of $p_i$. The integral over the density is now a single sum over the points in $\mathcal{P}$, *i.e.,*
