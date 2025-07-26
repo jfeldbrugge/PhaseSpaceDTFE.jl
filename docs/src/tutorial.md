@@ -88,6 +88,42 @@ In multistream regions, the `velocity()`-function returns the velocities of the 
 vel_field = [velocitySum([L/2., y, z], ps_dtfe) for y in Range, z in Range]
 ```
 
-## Phase-Space Delaunay Tessellation Field Estimator — subbox implementation
+## The Phase-Space Delaunay Tessellation Field Estimator — subbox implementation
 
-To be added....
+For the Phase-Space Delaunay Tessellation Field Estimator (PS-DTFE), use the same routine using both the initial and final positions and velocities of the $N$-body particles.
+
+```@example tutorial1
+## construct estimators with velocities
+ps_dtfe_sb = ps_dtfe_subbox(coords_q, coords_x, vels, m, depth, sim_box; N_target=32)
+
+## construct estimator without velocities
+# ps_dtfe_sb = ps_dtfe_subbox(coords_q, coords_x, m, depth, sim_box; N_target=32)
+
+## it is recommended to save the estimator object (holding the subbox references) for further use
+save("ps_dtfe_sb.jld2", "ps-dtfe-sb", ps_dtfe_sb)
+ps_dtfe_sb = load("ps_dtfe_sb.jld2")["ps-dtfe-sb"]
+nothing
+```
+
+We evaluate the density field 
+```@example tutorial1
+density_field = density_subbox(coords_arr, ps_dtfe_sb)
+heatmap(Range, Range, log10.(density_field), aspect_ratio=:equal, xlims=(0, L), ylims=(0, L), c=:grays, xlabel="[Mpc]", ylabel="[Mpc]") 
+```
+the number of streams
+```@example tutorial1
+number_field = numberOfStreams_subbox(coords_arr, ps_dtfe_sb)
+heatmap(Range, Range, log10.(number_field), aspect_ratio=:equal, xlims=(0, L), ylims=(0, L), xlabel="[Mpc]", ylabel="[Mpc]") 
+```
+and the mass weighted velocity field
+```@example tutorial1
+Range = 0.:0.2:100.
+coords_arr  = [[L/2., y, z] for y in Range, z in Range]
+velocitySum_field = velocitySum_subbox(coords_arr, ps_dtfe_sb)
+```
+
+Clear temporary files
+```@example tutorial1
+rm("ps_dtfe", recursive=true)
+rm("ps_dtfe_sb.jld2")
+```
