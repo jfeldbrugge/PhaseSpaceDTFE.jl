@@ -6,17 +6,15 @@ CurrentModule = PhaseSpaceDTFE
 The Delaunay Tessellation Field Estimator (DTFE) and its extension to phase-space (PS-DTFE) are mathematical tool for the reconstruction of the density and velocity field of a discrete point set. We here review the derivations underlying these reconstruction methods.
 
 ## The Delaunay Tessellation Field Estimator
-Delaunay Tessellation Field Estimator (DTFE) is a mathematical tool for the reconstruction of the density and velocity field of a discrete point set developed by Willem Schaap and Rien van de Weijgaert (<a href="https://www.astro.rug.nl/~weygaert/tim1publication/weyval2004.pdf">Schaap and Weijgaert 2004</a>, <a href="https://web.archive.org/web/20071210093614/http://dissertations.ub.rug.nl/faculties/science/2007/w.e.schaap/?FullItemRecord=ON">Willem Schaap 2007</a>). The DTFE method dynamically adapts to the variation of the density and geometry of the point set. The method is used in cosmological datasets (see for example <a href="https://apod.nasa.gov/apod/ap071107.html">the astronomy picture of the day, 7 November 2007</a>) as it can simultaneously capture the geometry of the voids, walls, filaments and clusters and preserve the total mass of the pointset. The total mass is not preserved in the closely related <a href="https://en.wikipedia.org/wiki/Natural_neighbor_interpolation">natural neighbor interpolation</a> based on the Voronoi tessellation. For an efficient implementation of the DTFE method in c++ see the <a href="**https://github.com/MariusCautun/DTFE**">code by Marius Cautun</a>. 
+Delaunay Tessellation Field Estimator (DTFE) is a mathematical tool for the reconstruction of the density and velocity field of a discrete point set developed by Willem Schaap and Rien van de Weijgaert ([Schaap and Weijgaert 2004](https://www.astro.rug.nl/~weygaert/tim1publication/weyval2004.pdf), [Willem Schaap 2007](https://web.archive.org/web/20071210093614/http://dissertations.ub.rug.nl/faculties/science/2007/w.e.schaap/?FullItemRecord=ON)). The DTFE method dynamically adapts to the variation of the density and geometry of the point set. The method is used in cosmological datasets (see for example [the astronomy picture of the day, 7 November 2007](https://apod.nasa.gov/apod/ap071107.html)) as it can simultaneously capture the geometry of the voids, walls, filaments and clusters and preserve the total mass of the pointset. The total mass is not preserved in the closely related 
+[natural neighbor interpolation](https://en.wikipedia.org/wiki/Natural_neighbor_interpolation) based on the Voronoi tessellation. For an efficient implementation of the DTFE method in c++ see the [code by Marius Cautun](https://github.com/MariusCautun/DTFE).
 
 Consider the pointset $\mathcal{P}$ consisting of $N$ labaled points $p_i \in \mathbb{R}^d$, the velocity set $\mathcal{V}$ consisting of the $N$ velocities $v_i \in \mathbb{R}^d$, and the mass set $\mathcal{M}$ consisting of the masses $m_i \in \mathbb{R}$ corresponding to the points in $\mathcal{P}$, with $i=1,\dots,N$. Using the points, we reconstruct the density field $\rho:\mathbb{R}^d \to \mathbb{R}$. Using both the points and the velocities, we construct the velocity field $v:\mathbb{R}^d\to \mathbb{R}$.
 
 ### Density reconstruction
 Given the pointset $\mathcal{P}$, consider the Delaunay tesselation $\mathcal{D}$ consisting of $N_T$ labelled simplices $D_i$, with $i=1,\dots, N_T$. In two dimensions, a simplex is a triangle spanning three points in $\mathcal{P}$. In three dimensions, a simplex is a tetrahedron spanning four points in $\mathcal{P}$.
 
-<figure>
-<a href='figures/Delaunay.png'><img src='figures/Delaunay.png' width=50% /></a>
- <figcaption> Fig. 1 - A two-dimensional Delaunay tessellation with the circumscribed circles. The Delaunay tesselation has the property that no vertex is in the circumcribed circle of a triangle.</figcaption>
-</figure>
+![Alt text](assets/figures/Delaunay.png " A two-dimensional Delaunay tessellation with the circumscribed circles. The Delaunay tesselation has the property that no vertex is in the circumcribed circle of a triangle.")
 
 Let's assume we can associate a (to be determined) density estimate $\rho_i$ to each point in $\mathcal{P}$. Given a symplex $D \in \mathcal{D}$ spanned by the vertices $p_{l_0},\dots, p_{l_d} \in \mathcal{P}$, with the corresponding densities $\rho_{l_0}, \dots, \rho_{l_d}$, we construct a linear interpolation of the density field in the simplex 
 
@@ -69,10 +67,7 @@ The integral over density -- assuming the density vanishes outside of the convex
 
 where the first sum runs over the simplices of the tessellation and the second sum runs over the vertices of a given simplex. Note that $\rho_i$ enters the sum for each simplex for which it is a vertex. These simplices form the star $W_i$ of the point $p_i$
 
-<figure>
-<a href='figures/Star.png'><img src='figures/Star.png' width=90% /></a>
- <figcaption> Fig. 2 - The star of a vertex in a Delaunay tessellation</figcaption>
-</figure>
+![Alt text](assets/figures/Star.png "Fig. 2 - The star of a vertex in a Delaunay tessellation")
 
 
 Using this observation, we reorder the double sum, by collecting the terms involving $\rho_i$ leading to the terms $\rho_i(V(D_{l_0}) + \dots + V(D_{l_n})) = \rho_i V(W_i)$, with the $D_{l_i}$'s forming the star of $p_i$. The integral over the density is now a single sum over the points in $\mathcal{P}$, *i.e.,*
