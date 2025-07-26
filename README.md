@@ -1,3 +1,10 @@
+<figure>
+<a href='docs/figures/density.png'><img src='docs/figures/density.png' width=100% /></a>
+ <figcaption> High-resolution of a $256^3$ particle simulation calculated with the PS-DTFE code.</figcaption>
+</figure>
+
+
+
 # PhaseSpaceDTFE
 [![Stable](https://img.shields.io/badge/docs-stable-blue.svg)](https://jfeldbrugge.github.io/PhaseSpaceDTFE.jl/stable/)
 [![Dev](https://img.shields.io/badge/docs-dev-blue.svg)](https://jfeldbrugge.github.io/PhaseSpaceDTFE.jl/dev/)
