@@ -4,7 +4,7 @@
 [![Build Status](https://github.com/jfeldbrugge/PhaseSpaceDTFE.jl/actions/workflows/CI.yml/badge.svg?branch=main)](https://github.com/jfeldbrugge/PhaseSpaceDTFE.jl/actions/workflows/CI.yml?query=branch%3Amain)
 
 <figure>
-<a href='docs/figures/density.png'><img src='docs/figures/density.png' width=100% /></a>
+<a href='docs/assets/figures/density.png'><img src='docs/assets/figures/density.png' width=100% /></a>
 </figure>
 
 
