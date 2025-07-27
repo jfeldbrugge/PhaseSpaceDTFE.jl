@@ -14,12 +14,27 @@ struct SimBox
     Ni::Int64
 end
 
+"""
+    unwrap_x_(q, x, L)
+
+Cosmological N-body simulations normally work with periodic boundary conditions. This function undoes the wrapping of particles around the box, assuming the particles did not travel more than half the size of the box.
+"""
 function unwrap_x_(q, x, L)
     unwrap_s.(x - q, L) + q
 end
 
+"""
+    unwrap_s(s, L)
+
+Cosmological N-body simulations normally work with periodic boundary conditions. This function undoes the wrapping of particles around the box in the displacement field, assuming the particles did not travel more than half the size of the box.
+"""
 unwrap_s(s, L) = mod((s + L / 2), L) - L / 2
 
+"""
+    translate(coords_q, coords_x, L)
+
+Cosmological N-body simulations normally work with periodic boundary conditions. This function shifts both the intial and final positions of the particles such that they lay in the simulation box in Eulerian space.
+"""
 function translate(coords_q, coords_x, L)
     coords_q_ = copy(coords_q)
     coords_x_ = copy(coords_x)
@@ -36,6 +51,11 @@ function translate(coords_q, coords_x, L)
     return coords_q_, coords_x_
 end
 
+"""
+    frame(coords_q, coords_x, L, pad=0.05)
+
+Cosmological N-body simulations normally work with periodic boundary conditions. This function added a padding (builds a frame) around the simulation box which helps implement the periodic boundary conditions in the Delaunay tesselation.
+"""
 function frame(coords_q, coords_x, L, pad=0.05)
     for d in 1:3
         indexL = coords_x[:,d] .> (1. - pad) * L
@@ -60,6 +80,11 @@ function frame(coords_q, coords_x, L, pad=0.05)
     return coords_q, coords_x
 end
 
+"""
+    frame_velocities(coords_x, velocities, L, pad=0.05)
+
+Cosmological N-body simulations normally work with periodic boundary conditions. This function added a padding (builds a frame) of the velocities around the simulation box which helps implement the periodic boundary conditions in the Delaunay tesselation.
+"""
 function frame_velocities(coords_x, velocities, L, pad=0.05)
     for d in 1:3
         indexL = coords_x[:,d] .> (1. - pad) * L
@@ -82,8 +107,11 @@ function frame_velocities(coords_x, velocities, L, pad=0.05)
     return velocities
 end
 
+"""
+    PS_DTFE(positions_initial, positions, velocities, m, depth, box)
 
-
+Generates an Phase-Space DTFE object given the initial positions and the final positions of the N-body particles. The Boundary Volume Hirarchy goes depth levels deep.
+"""
 struct PS_DTFE
     rho::Vector{Float64}
     Drho::Matrix{Float64}
@@ -131,6 +159,9 @@ struct PS_DTFE
     end
 end
 
+"""
+    PS_DTFE_periodic(coords_q, coords_x, velocities, m, depth, sim_box; pad=0.05)
+"""
 function PS_DTFE_periodic(coords_q, coords_x, velocities, m, depth, sim_box; pad=0.05)
     coords_x = unwrap_x_(coords_q, coords_x, sim_box.L);
     coords_q_, coords_x_ = translate(coords_q, coords_x, sim_box.L)
@@ -141,6 +172,9 @@ function PS_DTFE_periodic(coords_q, coords_x, velocities, m, depth, sim_box; pad
     PS_DTFE(coords_q_, coords_x_, velocities_, m, depth, box)
 end
 
+"""
+    PS_DTFE_periodic(coords_q, coords_x, m, depth, sim_box; pad=0.05)
+"""
 function PS_DTFE_periodic(coords_q, coords_x, m, depth, sim_box; pad=0.05)
     coords_x = unwrap_x_(coords_q, coords_x, sim_box.L);
     coords_q_, coords_x_ = translate(coords_q, coords_x, sim_box.L)
@@ -151,6 +185,11 @@ function PS_DTFE_periodic(coords_q, coords_x, m, depth, sim_box; pad=0.05)
     PS_DTFE(coords_q_, coords_x_, zeros(Ni_, 3), m, depth, box)
 end
 
+"""
+    density(p::Vector{Float64}, estimator::PS_DTFE)
+
+Reconstruct the Phase-Space DTFE density in the point p.
+"""
 function density(p::Vector{Float64}, estimator::PS_DTFE)
     simplexIndices = findIntersections(p, estimator.tree, estimator.positions, estimator.simplices)
 
@@ -162,11 +201,22 @@ function density(p::Vector{Float64}, estimator::PS_DTFE)
     return dens
 end
 
+
+"""
+    numberOfStreams(p::Vector{Float64}, estimator::PS_DTFE)
+
+Evaluates the number of streams the point p is in.
+"""
 function numberOfStreams(p::Vector{Float64}, estimator::PS_DTFE)
     simplexIndices = findIntersections(p, estimator.tree, estimator.positions, estimator.simplices)
     return length(simplexIndices)
 end
 
+"""
+    velocity(p::Vector{Float64}, estimator::PS_DTFE, single_stream=false)
+
+Reconstructs the Phase-Space DTFE velocities in the point p.
+"""
 function velocity(p::Vector{Float64}, estimator::PS_DTFE, single_stream=false)
     simplexIndices = findIntersections(p, estimator.tree, estimator.positions, estimator.simplices)
 
@@ -184,6 +234,11 @@ function velocity(p::Vector{Float64}, estimator::PS_DTFE, single_stream=false)
     end
 end
 
+"""
+    velocitySum(p::Vector{Float64}, estimator::PS_DTFE)
+
+Reconstructs the mass weighted sum of the Phase-Space DTFE velocities in the point p.
+"""
 function velocitySum(p::Vector{Float64}, estimator::PS_DTFE)
     simplexIndices = findIntersections(p, estimator.tree, estimator.positions, estimator.simplices)
 
@@ -208,6 +263,11 @@ function velocitySum(p::Vector{Float64}, estimator::PS_DTFE)
     end
 end
 
+"""
+    inSimplices(p::Vector{Float64}, estimator::PS_DTFE)
+
+Finds the simplices in the tesselation that include the point p.
+"""
 function inSimplices(p::Vector{Float64}, estimator::PS_DTFE)
     simplexIndices = findIntersections(p, estimator.tree, estimator.positions, estimator.simplices)
 end
