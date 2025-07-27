@@ -1,6 +1,7 @@
 ```@meta
 CurrentModule = PhaseSpaceDTFE
 ```
+# Reference
 
 ```@index
 ```
