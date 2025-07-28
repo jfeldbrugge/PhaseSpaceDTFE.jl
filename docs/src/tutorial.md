@@ -133,7 +133,7 @@ heatmap(Range, Range, log10.(density_field), aspect_ratio=:equal, xlims=(0, L), 
 the number of streams
 ```@example tutorial1
 number_field = numberOfStreams_subbox(coords_arr, ps_dtfe_sb)
-heatmap(Range, Range, number_field, aspect_ratio=:equal, xlims=(0, L), ylims=(0, L), xlabel="[Mpc]", ylabel="[Mpc]") 
+heatmap(Range, Range, number_field, aspect_ratio=:equal, xlims=(0, L), ylims=(0, L), clim=(1, 7), xlabel="[Mpc]", ylabel="[Mpc]") 
 ```
 and the mass weighted velocity field
 ```@example tutorial1
