@@ -1,3 +1,16 @@
+"""
+    PS_DTFE_subbox
+
+Phase-Space DTFE subbox object containing
+
+    N_sub::Int64
+    N_target::Int64
+    m::Float64
+    depth::Int64
+    dir::String
+    L::Float64
+    Ni::Int64
+"""
 struct PS_DTFE_subbox
     N_sub::Int64
     N_target::Int64
@@ -8,6 +21,11 @@ struct PS_DTFE_subbox
     Ni::Int64
 end
 
+"""
+    ps_dtfe_subbox(coords_q, coords_x, m, depth, sim_box::SimBox; N_target=128, pad=0.05, dir="./ps_dtfe")
+
+Generates an Phase-Space DTFE subbox given the initial positions and the final positions of the N-body particles. The Boundary Volume Hirarchy goes depth levels deep.
+"""
 function ps_dtfe_subbox(coords_q, coords_x, m, depth, sim_box::SimBox; N_target=128, pad=0.05, dir="./ps_dtfe")
 
     mkpath(dir)  # succeeds even if already exists
@@ -33,6 +51,11 @@ function ps_dtfe_subbox(coords_q, coords_x, m, depth, sim_box::SimBox; N_target=
     return PS_DTFE_subbox(N_sub, N_target, m, depth, dir, sim_box.L, sim_box.Ni)
 end
 
+"""
+    ps_dtfe_subbox(coords_q, coords_x, velocities, m, depth, sim_box::SimBox; N_target=128, pad=0.05, dir="./ps_dtfe")
+
+Generates an Phase-Space DTFE subbox given the initial positions and the final positions and final velocities of the N-body particles. The Boundary Volume Hirarchy goes depth levels deep.
+"""
 function ps_dtfe_subbox(coords_q, coords_x, velocities, m, depth, sim_box::SimBox; N_target=128, pad=0.05, dir="./ps_dtfe")
 
     mkpath(dir)  # succeeds even if already exists
@@ -59,6 +82,11 @@ function ps_dtfe_subbox(coords_q, coords_x, velocities, m, depth, sim_box::SimBo
     return PS_DTFE_subbox(N_sub, N_target, m, depth, dir, sim_box.L, sim_box.Ni)
 end
 
+"""
+    get_subbox_estimator(coords_q, coords_x, idx, N_sub, m, depth, sim_box::SimBox; pad=0.05, dir="./ps_dtfe")
+
+Obtain the subbox estimator associated to a given position.
+"""
 function get_subbox_estimator(coords_q, coords_x, idx, N_sub, m, depth, sim_box::SimBox; pad=0.05, dir="./ps_dtfe")
     box = 1. / N_sub * sim_box.L .* hcat(idx, idx .+ 1)
         
@@ -72,6 +100,11 @@ function get_subbox_estimator(coords_q, coords_x, idx, N_sub, m, depth, sim_box:
     serialize(dir * "/box_" * string(i) * "_" * string(j) * "_" * string(k), ps_dtfe)
 end
 
+"""
+    get_subbox_estimator(coords_q, coords_x, velocities, idx, N_sub, m, depth, sim_box::SimBox; pad=0.05, dir="./ps_dtfe")
+
+Obtain the subbox estimator associated to a given position.
+"""
 function get_subbox_estimator(coords_q, coords_x, velocities, idx, N_sub, m, depth, sim_box::SimBox; pad=0.05, dir="./ps_dtfe")
     box = 1. / N_sub * sim_box.L .* hcat(idx, idx .+ 1)
         
@@ -85,6 +118,11 @@ function get_subbox_estimator(coords_q, coords_x, velocities, idx, N_sub, m, dep
     serialize(dir * "/box_" * string(i) * "_" * string(j) * "_" * string(k), ps_dtfe)
 end
 
+"""
+    get_coords_in_subbox(coords, idx, N_sub, L)
+
+Obtain the positions in a given subbox.
+"""
 function get_coords_in_subbox(coords, idx, N_sub, L)
     box = 1. / N_sub * L .* hcat(idx, idx .+ 1)
 
@@ -149,7 +187,11 @@ end
 
 
 ## field calculation from subbox estimators -----------------------------------
+"""
+    density_subbox(coords_arr, ps_dtfe_sb)
 
+Reconstruct the Phase-Space DTFE density in the point p.
+"""
 function density_subbox(coords_arr, ps_dtfe_sb)
     N_sub = ps_dtfe_sb.N_sub
     dir   = ps_dtfe_sb.dir
@@ -173,6 +215,11 @@ function density_subbox(coords_arr, ps_dtfe_sb)
     return density_arr
 end
 
+"""
+    numberOfStreams_subbox(coords_arr, ps_dtfe_sb)
+
+Evaluates the number of streams the point p is in.
+"""
 function numberOfStreams_subbox(coords_arr, ps_dtfe_sb)
     N_sub = ps_dtfe_sb.N_sub
     dir   = ps_dtfe_sb.dir
@@ -196,6 +243,11 @@ function numberOfStreams_subbox(coords_arr, ps_dtfe_sb)
     return nstreams_arr
 end
 
+"""
+    velocity_subbox(coords_arr, ps_dtfe_sb)
+
+Reconstructs the Phase-Space DTFE velocities in an array of points.
+"""
 function velocity_subbox(coords_arr, ps_dtfe_sb)
     N_sub = ps_dtfe_sb.N_sub
     dir   = ps_dtfe_sb.dir
@@ -219,6 +271,11 @@ function velocity_subbox(coords_arr, ps_dtfe_sb)
     return velocity_arr
 end
 
+"""
+    velocitySum_subbox(coords_arr, ps_dtfe_sb)
+
+Reconstructs the mass weighted sum of the Phase-Space DTFE velocities in an array of points.
+"""
 function velocitySum_subbox(coords_arr, ps_dtfe_sb)
     N_sub = ps_dtfe_sb.N_sub
     dir   = ps_dtfe_sb.dir
@@ -243,11 +300,16 @@ function velocitySum_subbox(coords_arr, ps_dtfe_sb)
 end
 
 ## modular subbox calculations: single subbox ---------------------------------
-
+"""
+    get_subboxes(ps_dtfe_sub::PS_DTFE_subbox)
+"""
 function get_subboxes(ps_dtfe_sub::PS_DTFE_subbox)
     [[i, j, k] for i in 0:ps_dtfe_sub.N_sub-1, j in 0:ps_dtfe_sub.N_sub-1, k in 0:ps_dtfe_sub.N_sub-1][:]
 end
 
+"""
+    get_coords_chunk(coords, m, m_idx, random=false)
+"""
 function get_coords_chunk(coords, m, m_idx, random=false)
     indices = CartesianIndices(size(coords))
         

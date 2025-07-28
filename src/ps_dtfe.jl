@@ -110,7 +110,16 @@ end
 """
     PS_DTFE(positions_initial, positions, velocities, m, depth, box)
 
-Generates an Phase-Space DTFE object given the initial positions and the final positions of the N-body particles. The Boundary Volume Hirarchy goes depth levels deep.
+Generates an Phase-Space DTFE object given the initial positions and the final positions of the N-body particles. The Boundary Volume Hirarchy goes depth levels deep. It contains
+
+    rho::Vector{Float64}
+    Drho::Matrix{Float64}
+    Dv::Array{Float64}
+    tree::BVH
+    simplices::Matrix{Int}
+    positions::Matrix{Float64}
+    velocities::Matrix{Float64}
+    positions_initial::Matrix{Float64}
 """
 struct PS_DTFE
     rho::Vector{Float64}
