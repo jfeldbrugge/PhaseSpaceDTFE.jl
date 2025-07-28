@@ -8,7 +8,7 @@ sim_box = SimBox(L, Ni)   ## need this for estimator creation
 
 depth   = 5   # depth of estimator search tree
 
-## load data 
+## load data
 function load_data(file)
     fid = h5open(file, &quot;r&quot;)
     pos = convert.(Float64, read(fid[&quot;PartType1&quot;][&quot;Coordinates&quot;]))
@@ -28,23 +28,64 @@ end
 
 m = load_mass(&quot;../../test/data/snapshot_000.hdf5&quot;)
 (coords_q, _, _) = load_data(&quot;../../test/data/snapshot_000.hdf5&quot;)
-(coords_x, vels, _) = load_data(&quot;../../test/data/snapshot_002.hdf5&quot;)</code></pre><p>The particle coordinates and velocities are <code>Float64</code> matrices of size <code>(N, 3)</code>. The particle mass <code>m</code> is a single <code>Float64</code> or a matrix of size <code>(N, 3)</code> for individual particle masses.</p><h2 id="Prequel:-Delaunay-Tesselation-Field-Estimator"><a class="docs-heading-anchor" href="#Prequel:-Delaunay-Tesselation-Field-Estimator">Prequel: Delaunay Tesselation Field Estimator</a><a id="Prequel:-Delaunay-Tesselation-Field-Estimator-1"></a><a class="docs-heading-anchor-permalink" href="#Prequel:-Delaunay-Tesselation-Field-Estimator" title="Permalink"></a></h2><p>Before going though through PS-DTFE method, we demonstrate the traditional DTFE method by calling the PS-DTFE code only on the final (<em>Eulerian</em>) particle positions. For details, see examples below.</p><pre><code class="language-julia hljs">## construct estimator
+(coords_x, vels, _) = load_data(&quot;../../test/data/snapshot_002.hdf5&quot;)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">([95.94856262207031 98.76901245117188 99.14542388916016; 99.86626434326172 97.77499389648438 97.80353546142578; … ; 94.38851928710938 97.52845764160156 0.3155221939086914; 94.68167114257812 97.48580169677734 99.97648620605469], [-292.1794128417969 -76.47138977050781 28.625730514526367; -60.02801513671875 -113.5673599243164 -126.30517578125; … ; -395.4625244140625 163.2576141357422 155.2444610595703; -418.26104736328125 123.40419006347656 328.3358459472656], 0.9999999999999997)</code></pre><p>The particle coordinates and velocities are <code>Float64</code> matrices of size <code>(N, 3)</code>. The particle mass <code>m</code> is a single <code>Float64</code> or a matrix of size <code>(N, 3)</code> for individual particle masses.</p><h2 id="Prequel:-Delaunay-Tesselation-Field-Estimator"><a class="docs-heading-anchor" href="#Prequel:-Delaunay-Tesselation-Field-Estimator">Prequel: Delaunay Tesselation Field Estimator</a><a id="Prequel:-Delaunay-Tesselation-Field-Estimator-1"></a><a class="docs-heading-anchor-permalink" href="#Prequel:-Delaunay-Tesselation-Field-Estimator" title="Permalink"></a></h2><p>Before going though through PS-DTFE method, we demonstrate the traditional DTFE method by calling the PS-DTFE code only on the final (<em>Eulerian</em>) particle positions. For details, see examples below.</p><pre><code class="language-julia hljs">## construct estimator
 ps_dtfe = PS_DTFE_periodic(coords_x, coords_x, vels, m, depth, sim_box)
 
 ## evaluate density field
 Range = 0:2.0:100.
 density_field = [PhaseSpaceDTFE.density([L/2., y, z], ps_dtfe) for y in Range, z in Range]
-heatmap(Range, Range, log10.(density_field), aspect_ratio=:equal, xlims=(0, L), ylims=(0, L), c=:grays, xlabel=&quot;[Mpc]&quot;, ylabel=&quot;[Mpc]&quot;)</code></pre><h2 id="Phase-Space-Delaunay-Tessellation-Field-Estimator-—-basic-implementation"><a class="docs-heading-anchor" href="#Phase-Space-Delaunay-Tessellation-Field-Estimator-—-basic-implementation">Phase-Space Delaunay Tessellation Field Estimator — basic implementation</a><a id="Phase-Space-Delaunay-Tessellation-Field-Estimator-—-basic-implementation-1"></a><a class="docs-heading-anchor-permalink" href="#Phase-Space-Delaunay-Tessellation-Field-Estimator-—-basic-implementation" title="Permalink"></a></h2><p>We now demonstrate the use of the PS-DTFE method with the basic implementation that is suitable to simulations up to size 128^3 particles.</p><p>The first step is the construction of the estimator object from the initial (<em>Lagrangian</em>) and final (<em>Eulerian</em>) positions, <code>coords_q</code> and <code>coords_x</code>. This is only down once as a pre-computation step.</p><pre><code class="language-julia hljs">## construct estimator
+heatmap(Range, Range, log10.(density_field), aspect_ratio=:equal, xlims=(0, L), ylims=(0, L), c=:grays, xlabel=&quot;[Mpc]&quot;, ylabel=&quot;[Mpc]&quot;)</code></pre><img src="edb63bf8.svg" alt="Example block output"/><h2 id="Phase-Space-Delaunay-Tessellation-Field-Estimator-—-basic-implementation"><a class="docs-heading-anchor" href="#Phase-Space-Delaunay-Tessellation-Field-Estimator-—-basic-implementation">Phase-Space Delaunay Tessellation Field Estimator — basic implementation</a><a id="Phase-Space-Delaunay-Tessellation-Field-Estimator-—-basic-implementation-1"></a><a class="docs-heading-anchor-permalink" href="#Phase-Space-Delaunay-Tessellation-Field-Estimator-—-basic-implementation" title="Permalink"></a></h2><p>We now demonstrate the use of the PS-DTFE method with the basic implementation that is suitable to simulations up to size 128^3 particles.</p><p>The first step is the construction of the estimator object from the initial (<em>Lagrangian</em>) and final (<em>Eulerian</em>) positions, <code>coords_q</code> and <code>coords_x</code>. This is only down once as a pre-computation step.</p><pre><code class="language-julia hljs">## construct estimator
 ps_dtfe = PS_DTFE_periodic(coords_q, coords_x, vels, m, depth, sim_box)
 
 ## if want to ignore velocities
 #ps_dtfe = PS_DTFE_periodic(coords_q, coords_x, m, depth, box)
 
 ## for further use without pre-computation, consider saving the estimator to file
-#save(&quot;ps_dtfe.jld2, &quot;ps-dtfe&quot;, ps_dtfe)</code></pre><p>Note that <code>depth</code> specifies the simplex search tree depth in the estimator. Higher tree depths result faster field evaluations, but require longer construction times. It is recommended to start with <code>depth=5</code> and increase if required for high-resolution density fields.</p><p>The construction time should be of order 1-2 minutes for a 64^3 simulation at <code>depth=7</code>, or a 128^3 simulation at <code>depth=5</code>.</p><p>We now evaluate a density field with the <code>density()</code> function:</p><pre><code class="language-julia hljs"># evaluate density field
+#save(&quot;ps_dtfe.jld2, &quot;ps-dtfe&quot;, ps_dtfe)
+nothing</code></pre><p>Note that <code>depth</code> specifies the simplex search tree depth in the estimator. Higher tree depths result faster field evaluations, but require longer construction times. It is recommended to start with <code>depth=5</code> and increase if required for high-resolution density fields.</p><p>The construction time should be of order 1-2 minutes for a 64^3 simulation at <code>depth=7</code>, or a 128^3 simulation at <code>depth=5</code>.</p><p>We now evaluate a density field with the <code>density()</code> function:</p><pre><code class="language-julia hljs"># evaluate density field
 density_field = [PhaseSpaceDTFE.density([L/2., y, z], ps_dtfe) for y in Range, z in Range]
-heatmap(Range, Range, log10.(density_field), aspect_ratio=:equal, xlims=(0, L), ylims=(0, L), c=:grays, xlabel=&quot;[Mpc]&quot;, ylabel=&quot;[Mpc]&quot;)</code></pre><p>The corresponding number of streams is evaluated with the <code>numberOfStreams()</code> function:</p><pre><code class="language-julia hljs">nstreams_field = [numberOfStreams([L/2., y, z], ps_dtfe) for y in Range, z in Range]
-heatmap(Range, Range, nstreams_field, aspect_ratio=:equal, xlims=(0, L), ylims=(0, L), clim=(1, 7), xlabel=&quot;[Mpc]&quot;, ylabel=&quot;[Mpc]&quot;)</code></pre><p>Similarly, the velocity field is evaluated with the <code>velocity()</code>-function:</p><pre><code class="language-julia hljs">vel_field = [velocity([L/2., y, z], ps_dtfe) for y in Range, z in Range]</code></pre><p>In multistream regions, the <code>velocity()</code>-function returns the velocities of the individual streams (or NaN if <code>single_stream=true</code> is set in the function). To obtain the stream-mass weighted summation of the velocities, call the <code>velocitySum()</code>-function (reducing to <code>velocity()</code> in single-stream regions):</p><pre><code class="language-julia hljs">vel_field = [velocitySum([L/2., y, z], ps_dtfe) for y in Range, z in Range]</code></pre><h2 id="The-Phase-Space-Delaunay-Tessellation-Field-Estimator-—-subbox-implementation"><a class="docs-heading-anchor" href="#The-Phase-Space-Delaunay-Tessellation-Field-Estimator-—-subbox-implementation">The Phase-Space Delaunay Tessellation Field Estimator — subbox implementation</a><a id="The-Phase-Space-Delaunay-Tessellation-Field-Estimator-—-subbox-implementation-1"></a><a class="docs-heading-anchor-permalink" href="#The-Phase-Space-Delaunay-Tessellation-Field-Estimator-—-subbox-implementation" title="Permalink"></a></h2><p>For the Phase-Space Delaunay Tessellation Field Estimator (PS-DTFE), use the same routine using both the initial and final positions and velocities of the <span>$N$</span>-body particles.</p><pre><code class="language-julia hljs">## construct estimators with velocities
+heatmap(Range, Range, log10.(density_field), aspect_ratio=:equal, xlims=(0, L), ylims=(0, L), c=:grays, xlabel=&quot;[Mpc]&quot;, ylabel=&quot;[Mpc]&quot;)</code></pre><img src="fac43be5.svg" alt="Example block output"/><p>The corresponding number of streams is evaluated with the <code>numberOfStreams()</code> function:</p><pre><code class="language-julia hljs">nstreams_field = [numberOfStreams([L/2., y, z], ps_dtfe) for y in Range, z in Range]
+heatmap(Range, Range, nstreams_field, aspect_ratio=:equal, xlims=(0, L), ylims=(0, L), clim=(1, 7), xlabel=&quot;[Mpc]&quot;, ylabel=&quot;[Mpc]&quot;)</code></pre><img src="1ebcd5ff.svg" alt="Example block output"/><p>Similarly, the velocity field is evaluated with the <code>velocity()</code>-function:</p><pre><code class="language-julia hljs">vel_field = [velocity([L/2., y, z], ps_dtfe) for y in Range, z in Range]</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">51×51 Matrix{Matrix{Float64}}:
+ [42.8752 -74.5904 18.2795]                                                          …  [42.8752 -74.5904 18.2795]
+ [27.7579 -59.2485 -5.62945]                                                            [27.7579 -59.2485 -5.62945]
+ [23.8106 -157.228 -72.9788]                                                            [23.8106 -157.228 -72.9788]
+ [12.0603 -122.481 -83.4588]                                                            [12.0603 -122.481 -83.4588]
+ [-15.8904 -94.7159 -69.8274]                                                           [-13.0526 -92.4946 -75.5898]
+ [-17.0934 -138.316 -53.3808]                                                        …  [-17.0934 -138.316 -53.3808]
+ [6.51849 -107.328 -53.3064]                                                            [6.51849 -107.328 -53.3064]
+ [16.0707 -53.784 -48.2457]                                                             [16.0707 -53.784 -48.2457]
+ [17.5343 5.09039 -55.7492]                                                             [24.5043 0.472117 -72.4606]
+ [21.5663 61.8256 -63.4809]                                                             [28.5363 57.2074 -80.1923]
+ ⋮                                                                                   ⋱  ⋮
+ [245.46 -306.869 77.1011]                                                              [233.843 -313.44 70.9182]
+ [296.209 -240.779 131.363]                                                             [158.601 -410.851 143.251]
+ [158.889 -345.196 51.9522]                                                             [173.018 -389.524 10.5611]
+ [-3400.49 -1613.24 -1424.04; 151.918 -281.171 -36.3125; 479.391 -222.284 -23.6498]  …  [196.684 -254.992 84.1738; -559.954 -331.328 204.745; -1327.65 -672.563 -500.751]
+ [82.1659 -179.572 74.1128]                                                             [236.482 -211.028 10.5177]
+ [95.9255 -156.069 66.1979]                                                             [106.702 -153.601 49.6197]
+ [64.8472 -144.103 62.0064]                                                             [61.398 -142.112 54.7716]
+ [39.2382 -106.284 42.5978]                                                             [28.8622 -126.336 44.6443]
+ [42.8752 -74.5904 18.2795]                                                          …  [42.8752 -74.5904 18.2795]</code></pre><p>In multistream regions, the <code>velocity()</code>-function returns the velocities of the individual streams (or NaN if <code>single_stream=true</code> is set in the function). To obtain the stream-mass weighted summation of the velocities, call the <code>velocitySum()</code>-function (reducing to <code>velocity()</code> in single-stream regions):</p><pre><code class="language-julia hljs">vel_field = [velocitySum([L/2., y, z], ps_dtfe) for y in Range, z in Range]</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">51×51 Matrix{Matrix{Float64}}:
+ [42.8752 -74.5904 18.2795]    …  [42.8752 -74.5904 18.2795]
+ [27.7579 -59.2485 -5.62945]      [27.7579 -59.2485 -5.62945]
+ [23.8106 -157.228 -72.9788]      [23.8106 -157.228 -72.9788]
+ [12.0603 -122.481 -83.4588]      [12.0603 -122.481 -83.4588]
+ [-15.8904 -94.7159 -69.8274]     [-13.0526 -92.4946 -75.5898]
+ [-17.0934 -138.316 -53.3808]  …  [-17.0934 -138.316 -53.3808]
+ [6.51849 -107.328 -53.3064]      [6.51849 -107.328 -53.3064]
+ [16.0707 -53.784 -48.2457]       [16.0707 -53.784 -48.2457]
+ [17.5343 5.09039 -55.7492]       [24.5043 0.472117 -72.4606]
+ [21.5663 61.8256 -63.4809]       [28.5363 57.2074 -80.1923]
+ ⋮                             ⋱  ⋮
+ [245.46 -306.869 77.1011]        [233.843 -313.44 70.9182]
+ [296.209 -240.779 131.363]       [158.601 -410.851 143.251]
+ [158.889 -345.196 51.9522]       [173.018 -389.524 10.5611]
+ [-1877.79 -1061.03 -863.053]  …  [-937.707 -527.294 -230.458]
+ [82.1659 -179.572 74.1128]       [236.482 -211.028 10.5177]
+ [95.9255 -156.069 66.1979]       [106.702 -153.601 49.6197]
+ [64.8472 -144.103 62.0064]       [61.398 -142.112 54.7716]
+ [39.2382 -106.284 42.5978]       [28.8622 -126.336 44.6443]
+ [42.8752 -74.5904 18.2795]    …  [42.8752 -74.5904 18.2795]</code></pre><h2 id="The-Phase-Space-Delaunay-Tessellation-Field-Estimator-—-subbox-implementation"><a class="docs-heading-anchor" href="#The-Phase-Space-Delaunay-Tessellation-Field-Estimator-—-subbox-implementation">The Phase-Space Delaunay Tessellation Field Estimator — subbox implementation</a><a id="The-Phase-Space-Delaunay-Tessellation-Field-Estimator-—-subbox-implementation-1"></a><a class="docs-heading-anchor-permalink" href="#The-Phase-Space-Delaunay-Tessellation-Field-Estimator-—-subbox-implementation" title="Permalink"></a></h2><p>For the Phase-Space Delaunay Tessellation Field Estimator (PS-DTFE), use the same routine using both the initial and final positions and velocities of the <span>$N$</span>-body particles.</p><pre><code class="language-julia hljs">## construct estimators with velocities
 ps_dtfe_sb = ps_dtfe_subbox(coords_q, coords_x, vels, m, depth, sim_box; N_target=32)
 
 ## construct estimator without velocities
@@ -53,9 +94,82 @@ ps_dtfe_sb = ps_dtfe_subbox(coords_q, coords_x, vels, m, depth, sim_box; N_targe
 ## it is recommended to save the estimator object (holding the subbox references) for further use
 save(&quot;ps_dtfe_sb.jld2&quot;, &quot;ps-dtfe-sb&quot;, ps_dtfe_sb)
 ps_dtfe_sb = load(&quot;ps_dtfe_sb.jld2&quot;)[&quot;ps-dtfe-sb&quot;]
-nothing</code></pre><p>We evaluate the density field </p><pre><code class="language-julia hljs">
-coords_arr = [[L/2., y, z] for y in Range, z in Range]
+nothing</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">Calculating 8 subbox estimators with 32^3 particles each (total simulation 64^3 particles).
+subbox i, j, k = [0, 0, 0]
+subbox i, j, k = [1, 0, 0]
+<span class="sgr32">Progress:  25%|██████████▎                              |  ETA: 0:00:14</span>subbox i, j, k = [0, 1, 0]
+<span class="sgr32">Progress:  38%|███████████████▍                         |  ETA: 0:00:13</span>subbox i, j, k = [1, 1, 0]
+<span class="sgr32">Progress:  50%|████████████████████▌                    |  ETA: 0:00:10</span>subbox i, j, k = [0, 0, 1]
+<span class="sgr32">Progress:  62%|█████████████████████████▋               |  ETA: 0:00:07</span>subbox i, j, k = [1, 0, 1]
+<span class="sgr32">Progress:  75%|██████████████████████████████▊          |  ETA: 0:00:05</span>subbox i, j, k = [0, 1, 1]
+<span class="sgr32">Progress:  88%|███████████████████████████████████▉     |  ETA: 0:00:02</span>subbox i, j, k = [1, 1, 1]
+<span class="sgr32">Progress: 100%|█████████████████████████████████████████| Time: 0:00:18</span></code></pre><p>We evaluate the density field </p><pre><code class="language-julia hljs">coords_arr = [[L/2., y, z] for y in Range, z in Range]
 density_field = density_subbox(coords_arr, ps_dtfe_sb)
-heatmap(Range, Range, log10.(density_field), aspect_ratio=:equal, xlims=(0, L), ylims=(0, L), c=:grays, xlabel=&quot;[Mpc]&quot;, ylabel=&quot;[Mpc]&quot;) </code></pre><p>the number of streams</p><pre><code class="language-julia hljs">number_field = numberOfStreams_subbox(coords_arr, ps_dtfe_sb)
-heatmap(Range, Range, log10.(number_field), aspect_ratio=:equal, xlims=(0, L), ylims=(0, L), xlabel=&quot;[Mpc]&quot;, ylabel=&quot;[Mpc]&quot;) </code></pre><p>and the mass weighted velocity field</p><pre><code class="language-julia hljs">velocitySum_field = velocitySum_subbox(coords_arr, ps_dtfe_sb)</code></pre><p>Clear temporary files</p><pre><code class="language-julia hljs">rm(&quot;ps_dtfe&quot;, recursive=true)
-rm(&quot;ps_dtfe_sb.jld2&quot;)</code></pre></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../theory/">« Theory</a><a class="docs-footer-nextpage" href="../reference/">Reference »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.14.1 on <span class="colophon-date" title="Monday 28 July 2025 14:58">Monday 28 July 2025</span>. Using Julia version 1.11.6.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
+heatmap(Range, Range, log10.(density_field), aspect_ratio=:equal, xlims=(0, L), ylims=(0, L), c=:grays, xlabel=&quot;[Mpc]&quot;, ylabel=&quot;[Mpc]&quot;)</code></pre><img src="098fab92.svg" alt="Example block output"/><p>the number of streams</p><pre><code class="language-julia hljs">number_field = numberOfStreams_subbox(coords_arr, ps_dtfe_sb)
+heatmap(Range, Range, log10.(number_field), aspect_ratio=:equal, xlims=(0, L), ylims=(0, L), xlabel=&quot;[Mpc]&quot;, ylabel=&quot;[Mpc]&quot;)</code></pre><img src="e64a4004.svg" alt="Example block output"/><p>and the mass weighted velocity field</p><pre><code class="language-julia hljs">velocitySum_field = velocitySum_subbox(coords_arr, ps_dtfe_sb)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">51×51×3 Array{Float64, 3}:
+[:, :, 1] =
+   20.1516    36.4981    43.471    …   32.5371      3.11274     20.7923
+   34.4387    40.8928   125.756         9.67803   -14.5117      34.4387
+    2.21902   61.7868    92.4082       46.3015     21.8414       2.21902
+    4.98662   18.1168    50.3275       66.4247    -93.053       12.0603
+    5.66455    4.98585   21.3655       16.1121     -0.403312   -15.8904
+   -6.63212  -41.1472     7.79642  …   51.8414      8.79458    -17.0934
+   16.3353   -26.1855    32.6508       24.3486     19.6736      16.3353
+   14.0994     1.68243   36.7115       22.8019     21.4165      14.0994
+   17.5343    36.4536    38.6639       26.028      29.0556      23.4227
+   21.5663    34.8849    49.7563       26.9764     32.9099      27.4547
+    ⋮                              ⋱                             ⋮
+  245.46     198.32     163.294       174.032     200.83       244.22
+   97.4487   350.673    181.238       193.704     207.501      296.209
+  158.889    291.108    167.391       172.232     226.976      173.018
+ -607.907     -5.03551  156.358    …  119.296     152.99      -869.524
+  169.488    151.899    160.856        99.7164     96.4394     236.482
+  106.702     79.5204   146.326        80.7847     85.1602      94.6231
+   64.8472    56.4938    69.215        42.1049     54.259       59.7613
+   28.8622    39.3078    76.0217       24.535      28.2467      39.2382
+   20.1516    36.4981    43.471    …   -0.133728   -2.19018     42.8752
+
+[:, :, 2] =
+  -93.5948   -124.027   -126.251   …   -46.4531    -59.0568    -68.3154
+  -54.2457    -79.1602  -104.804         5.94951   -22.4669    -54.2457
+ -107.946    -139.565   -125.975        38.5164     33.7316   -107.946
+ -135.823    -122.0     -126.895      -232.132    -140.797    -122.481
+  -92.459     -73.6638  -115.259      -198.729    -144.027     -94.7159
+ -140.984    -214.181   -134.625   …  -125.166    -142.063    -138.316
+ -108.777    -104.37    -104.224       -91.4909   -106.821    -108.777
+  -55.7781    -55.8108   -59.2143      -38.0689    -47.8482    -55.7781
+    5.09039     5.2116    -3.0462       20.5881      9.75648     4.72421
+   61.8256     61.1996    53.8661       77.1602     69.5631     61.4595
+    ⋮                              ⋱                             ⋮
+ -306.869    -394.134   -354.626      -270.328    -273.602    -313.7
+ -258.507    -253.492   -288.634      -235.144    -246.026    -240.779
+ -345.196    -266.007   -250.083      -279.941    -259.404    -389.524
+ -482.408    -220.705   -195.399   …  -247.698    -242.318    -491.356
+ -130.897    -125.899   -142.335      -197.405    -202.297    -211.028
+ -153.601    -132.161    -80.5673     -146.263    -155.118    -151.994
+ -144.103    -189.321   -177.869      -129.588    -136.147    -146.77
+ -126.336    -130.029   -164.726       -92.6876   -105.105    -106.284
+  -93.5948   -124.027   -126.251   …   -26.6987    -70.5203    -74.5904
+
+[:, :, 3] =
+   19.9205    45.0091    87.173    …   -51.8727     -1.88967    26.7559
+   -4.66593   26.0926   -11.473        -72.1943    -46.9928     -4.66593
+  -61.8088     7.40795    4.22919      -91.5979    -52.7073    -61.8088
+  -83.3002   -21.019     11.9056      -125.708    -166.193     -83.4588
+  -53.4414   -30.3246     8.18834     -132.725    -114.084     -69.8274
+  -56.3945    28.7501   -43.6345   …  -129.413     -65.594     -53.3808
+  -49.1329   -24.2857   -15.0702      -102.254     -84.4963    -49.1329
+  -58.4055   -40.5924   -12.4614      -112.378     -88.6491    -58.4055
+  -55.7492   -53.144    -20.392       -122.448     -92.1364    -60.292
+  -63.4809   -55.8174   -16.9188      -129.735    -102.968     -68.0236
+    ⋮                              ⋱                             ⋮
+   77.1011   -73.9372   -82.0462        58.11      121.306      67.3234
+ -171.899    120.34     -64.5412        14.0703     63.8221    131.363
+   51.9522   -16.8416   -10.3429        -8.40617    36.6774     10.5611
+ -318.493    103.576      7.25479  …    -9.68612    17.672    -248.86
+   49.8892    87.5219    28.1555       -21.5548      7.96854    10.5177
+   49.6197   108.222     44.1114       -24.7029     19.7323     77.6291
+   62.0064   111.201    112.706        -28.6972     18.4376     55.6033
+   44.6443    85.4933    84.0377       -30.767       6.23105    42.5978
+   19.9205    45.0091    87.173    …   -48.6469     -9.56183    18.2795</code></pre><p>Clear temporary files</p><pre><code class="language-julia hljs">rm(&quot;ps_dtfe&quot;, recursive=true)
+rm(&quot;ps_dtfe_sb.jld2&quot;)</code></pre></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../theory/">« Theory</a><a class="docs-footer-nextpage" href="../reference/">Reference »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.14.1 on <span class="colophon-date" title="Monday 28 July 2025 15:19">Monday 28 July 2025</span>. Using Julia version 1.11.6.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
