@@ -143,11 +143,18 @@ For a point $x \in \mathbb{R}^d$, the reconstruction amounts to looking up the c
 
 ## The Phase-Space Delaunay Tessellation Field Estimator
 
-The Phase-Space Delaunay Tessellation Field Estimator (PS-DTFE) extends the DTFE method to phase-space, inspired by work by [...]. For more details we refer to the publication [Phase-Space Delaunay Tesselation Field Estimator](https://academic.oup.com/mnras/article/536/1/807/7915986). The evolution of our universe can be described in Lagrangian fluid dynamics in terms of the Lagrangian map $x_t(q) = q + s_t(q)$ mapping a point in the space of initial conditions (Lagrangian space) to a point in the current universe (Eulerian space). The displacement field $s_t(q)$ captures the displacement of a particle starting at $q$ in time $t$. Given the Lagrangian map $x_t$, the density field is given by 
+The Phase-Space Delaunay Tessellation Field Estimator (PS-DTFE) extends the DTFE method to phase-space, inspired by work by [...]. For more details we refer to the publication [Phase-Space Delaunay Tesselation Field Estimator](https://academic.oup.com/mnras/article/536/1/807/7915986). 
+
+The evolution of our universe can be described in Lagrangian fluid dynamics in terms of the Lagrangian map $x_t(q) = q + s_t(q)$ mapping a point in the space of initial conditions (Lagrangian space) to a point in the current universe (Eulerian space). The displacement field $s_t(q)$ captures the displacement of a particle starting at $q$ in time $t$. Large-scale structure formation can be visualized with the folding of a three-dimensional dark matter sheet in six-dimensional phase-space. The projection of the dark matter sheet to Eulerian space leads to the formation of multi-stream regions and caustics where the density spikes.
+
+![Phase-Space](assets/figures/Phase-Space.png)
+
+Given the Lagrangian map $x_t$, the density in a point in Eulerian space is given by 
 
 ```math
-\rho(x') = \sum_{q \in x_t^{-1}(x')} \frac{\rho_u}{\| \nabla x_t(q)\|} = \sum_{q \in x_t^{-1}(x')} \frac{\rho_u}{\| I + \nabla s_t(q)\|}
+\rho(x') = \sum_{q \in x_t^{-1}(x')} \frac{\rho_u}{|\det( \nabla x_t(q))|} = \sum_{q \in x_t^{-1}(x')} \frac{\rho_u}{|\det( I + \nabla s_t(q))|}
 ```
 
-The sum ranges over all points in Lagrangian space that can reach $x'$ in the given time. The DTFE method successfully estimates this density in single-stream regions. However, in multi-stream regions the Delaunay tessellation may identify particles as neighbours in Eulerian space that where far separated in Lagrangian space. To circumvent this problem, we evaluate the Delaunay tessellation of an early phase in our universe, where the universe was still in a single-stream state, and use this tessellation to estimate the density and velocity fields in Eulerian space. Finding which tetrahedra intersect a point is implemented with a Bounding Volume Hierarchy (BVH), a tree structure on a set of geometric objects.
+where the sum ranges over all points in Lagrangian space that can reach $x'$ in the given time. The caustics form at the boundaries of the multi-stream regions where the determinant of the deformation tensor vanishes, i.e. $\det(\nabla x_t)=0$.
 
+The DTFE method successfully estimates this density in single-stream regions. However, in multi-stream regions, the Delaunay tessellation may identify particles as neighbours in Eulerian space that where far separated in Lagrangian space (see the central panel of the figure above). To circumvent this problem, we evaluate the Delaunay tessellation of an early phase in our universe, where the universe was still in a single-stream state, and use this tessellation to estimate the density and velocity fields in Eulerian space (see the right panel of the figure above). Finding which tetrahedra intersect a point is implemented with a Bounding Volume Hierarchy (BVH), a tree structure on a set of tetrahedra spanning the dark matter sheet.
