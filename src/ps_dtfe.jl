@@ -1,8 +1,7 @@
 """
     SimBox(L, Ni)
 
-Sets the size and resolution of the simulation box.
-
+Holds the size of the simulation box and the particle number per side length.
 # Examples
 ```julia-repl
 julia> SimBox(100, 64)
@@ -112,7 +111,7 @@ end
 """
     PS_DTFE(positions_initial, positions, velocities, m, depth, box)
 
-Generates an Phase-Space DTFE object given the initial positions and the final positions of the N-body particles. The Boundary Volume Hirarchy goes depth levels deep. It contains
+Generates an Phase-Space DTFE object given the initial positions and the final positions of the N-body particles. The Boundary Volume Hirarchy goes `depth` levels deep. It PS_DTFE-object contains:
 
     rho::Vector{Float64}
     Drho::Matrix{Float64}
@@ -172,6 +171,8 @@ end
 
 """
     PS_DTFE_periodic(coords_q, coords_x, velocities, m, depth, sim_box; pad=0.05)
+
+Constructs the PS_DTFE-object from particle coordinates and velocities assuming periodic boundary conditions. `pad` specifies
 """
 function PS_DTFE_periodic(coords_q, coords_x, velocities, m, depth, sim_box; pad=0.05)
     coords_x = unwrap_x_(coords_q, coords_x, sim_box.L);
