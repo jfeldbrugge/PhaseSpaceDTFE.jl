@@ -77,7 +77,7 @@ nothing
 
 The argument `depth` specifies the simplex search tree depth in the estimator. Higher tree depths result in faster field evaluations, but require longer construction times. We recommend to start with `depth=5` and increase this if required for high-resolution density fields.
 
-The construction time should be of order 1-2 minutes for a 64^3 simulation at `depth=7`, or a 128^3 simulation at `depth=5` (on a modern computer).
+The construction time should be of order 1-2 minutes for a 64^3 simulation at `depth=7`, or a 128^3 simulation at `depth=5` on a modern computer.
 
 We now evaluate the density field with the `density()` function:
 
@@ -110,7 +110,7 @@ velocity_field = [velocitySum([L/2., y, z], ps_dtfe) for y in Range, z in Range]
 
 We now demonstrate the use of the PS-DTFE method for simulations with more than 128^3 particles.
 
-It is not feasible to apply the basic PS-DTFE implementation to high-resolution simulations, as the construction of the estimator's simplex search tree would require immense working memory (> 100 GB for 256^3 particles). To circumvent this, the subbox routine internally divides the simulation box into smaller subboxes, constructs an estimator for each of these and writes the estimator to file. The user easily constructs the `ps_dtfe_sb` object holding the subbox references as follows:
+It is not feasible to directly apply the basic PS-DTFE implementation to high-resolution simulations, as the construction of the estimator's simplex search tree would require immense working memory (> 100 GB for 256^3 particles). To circumvent this, the subbox routine internally divides the simulation box into smaller subboxes, constructs an estimator for each of these and writes the estimator to file. The user constructs the `ps_dtfe_sb` object holding the subbox references as follows:
 
 ```@example tutorial1
 ## construct estimators with velocities
@@ -125,11 +125,11 @@ ps_dtfe_sb = load("ps_dtfe_sb.jld2")["ps-dtfe-sb"]
 nothing
 ```
 
-The keyword argument `N_target` specifies the particle number (`N_target`^3) of the subbox. We recommend to use the default of 128^3 subbox particles.
+The keyword argument `N_target` specifies the particle number (`N_target`^3) of the subboxes. We recommend to use the default value `N_target=128`.
 
 For a 256^3 simulation with 8 subboxes of size `N_target=128` at `depth=5-7`, the construction time should be of order 10-30 minutes. The estimator objects will require about 20-50 GB of storage space, which can be deleted after the field evaluations (see below).
 
-For internal efficiency, the density field is now evaluated by passing on the full list of coordinates to the `density_subbox()`-function (instead of calling `[density_subbox() for x in Range...]` as above):
+For internal efficiency, the density field is evaluated by directly passing on the list of coordinates to the `density_subbox()`-function:
 
 ```@example tutorial1
 coords_arr = [[L/2., y, z] for y in Range, z in Range]
@@ -144,7 +144,7 @@ nstreams_field = numberOfStreams_subbox(coords_arr, ps_dtfe_sb)
 heatmap(Range, Range, nstreams_field, aspect_ratio=:equal, xlims=(0, L), ylims=(0, L), clim=(1, 7), xlabel="[Mpc]", ylabel="[Mpc]") 
 ```
 
-Finally, the velocities are evaluated with `velocity()`- or `velocitySum()`-function:
+Finally, the velocities are evaluated with the `velocity()`- or `velocitySum()`-function:
 
 ```julia
 velocitySum_field = velocitySum_subbox(coords_arr, ps_dtfe_sb)
