@@ -41,7 +41,7 @@ end
 """
     findCandidateSimplices(p::Vector{Float64}, BVH_tree::BVH)
 
-Given a Bounding Volume Hierarchy, findCandidateSimplices find a set simplices that may contain the point p. The function output indices of candidate simplices.
+Given a Bounding Volume Hierarchy, find a set candidate simplices that may contain the point `p`. The function outputs the indices of the candidate simplices.
 """
 function findCandidateSimplices(p::Vector{Float64}, BVH_tree::BVH)
     dim = (BVH_tree.depth % size(BVH_tree.box, 1)) + 1
@@ -60,7 +60,7 @@ end
 """
     findBox(p::Vector{Float64}, BVH_tree::BVH)
 
-Find the box in the Bounding Volume Hierarchy that contains the point p.
+Find the box in the Bounding Volume Hierarchy containing the point `p`.
 """
 function findBox(p::Vector{Float64}, BVH_tree::BVH)
     dim = (BVH_tree.depth % size(BVH_tree.box, 1)) + 1
@@ -79,7 +79,7 @@ end
 """
     intersection(p::Vector{Float64}, simplex)
 
-Check whether the point p is included in the simplex.
+Check whether the point `p` is contained in the simplex.
 """
 function intersection(p::Vector{Float64}, simplex)
     @inbounds barry = inv(@view(simplex[2:end,:])' .- @view(simplex[1,:])) * (p .- @view(simplex[1,:]))
@@ -89,7 +89,7 @@ end
 """
     findIntersections(p::Vector{Float64}, BVH_tree::BVH, points, simplices)
 
-Find the indices of the simplices that intersect the point p.
+Find the indices of the simplices that intersect the point `p`.
 """
 function findIntersections(p::Vector{Float64}, BVH_tree::BVH, points, simplices)
     candidates = findCandidateSimplices(p, BVH_tree)
@@ -99,6 +99,6 @@ end
 """
     volume(sim, points)
 
-Evaluate the volume of the simplex.
+Evaluate the volume of the simplex `sim`.
 """
 volume(sim, points) = @inbounds abs(det(@view(points[@view(sim[2:end]),:])' .- @view(points[sim[1],:]))) /  factorial(size(points, 2))
