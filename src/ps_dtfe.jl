@@ -1,7 +1,7 @@
 """
     SimBox(L, Ni)
 
-Holds the size of the simulation box and the particle number per side length.
+Holds the size `L` of the simulation box and the particle number `Ni` per side length.
 # Examples
 ```julia-repl
 julia> SimBox(100, 64)
@@ -172,7 +172,7 @@ end
 """
     PS_DTFE_periodic(coords_q, coords_x, velocities, m, depth, sim_box; pad=0.05)
 
-Constructs the PS_DTFE-object from the initial positions `coords_q`, final positions `coords_x` and velocities `velocities` assuming periodic boundary conditions. These are `Float64` matrices of size `(N,3)`. `m` is the particle mass, a single `Float64` or a matching matrix `(N, 3)`. `pad` specifies the framing width in units of `L`.
+Constructs the PS-DTFE-object from the initial positions `coords_q`, final positions `coords_x` and velocities `velocities` assuming periodic boundary conditions. These are `Float64` matrices of size `(N,3)`. `m` is the particle mass, a single `Float64` or a matching matrix `(N, 3)`. `pad` specifies the framing width in units of `L`.
 """
 function PS_DTFE_periodic(coords_q, coords_x, velocities, m, depth, sim_box; pad=0.05)
     coords_x = unwrap_x_(coords_q, coords_x, sim_box.L);
@@ -187,7 +187,7 @@ end
 """
     PS_DTFE_periodic(coords_q, coords_x, m, depth, sim_box; pad=0.05)
 
-Constructs the PS_DTFE-object from the initial positions `coords_q` and final positions `coords_x` assuming periodic boundary conditions. These are `Float64` matrices of size `(N,3)`. `m` is the particle mass, a single `Float64` or a matching matrix `(N, 3)`. `pad` specifies the framing width in units of `L`.
+Constructs the PS-DTFE-object from the initial positions `coords_q` and final positions `coords_x` assuming periodic boundary conditions. These are `Float64` matrices of size `(N,3)`. `m` is the particle mass, a single `Float64` or a matching matrix `(N, 3)`. `pad` specifies the framing width in units of `L`.
 """
 function PS_DTFE_periodic(coords_q, coords_x, m, depth, sim_box; pad=0.05)
     coords_x = unwrap_x_(coords_q, coords_x, sim_box.L);
@@ -229,7 +229,7 @@ end
 """
     velocity(p::Vector{Float64}, estimator::PS_DTFE, single_stream=false)
 
-Evaluate the Phase-Space DTFE velocity estimate in the point `p`. Returns a matrix of size `(n, 3)` for `n` stream velocities (`(1,3)` in single-stream regions, `(n, 3)` otherwise). If `single_stream=true`, returns `[NaN, NaN, NaN]` in multistream regions.
+Evaluate the Phase-Space DTFE velocity estimate in the point `p`. Returns a matrix of size `(n, 3)` for `n` stream velocities (`(1,3)` in single-stream regions, `(n, 3)` otherwise). If `single_stream=true`, returns `[NaN NaN NaN]` in multistream regions.
 """
 function velocity(p::Vector{Float64}, estimator::PS_DTFE, single_stream=false)
     simplexIndices = findIntersections(p, estimator.tree, estimator.positions, estimator.simplices)
