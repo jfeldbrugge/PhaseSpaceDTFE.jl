@@ -24,7 +24,7 @@ julia> import Pkg; Pkg.add("https://github.com/jfeldbrugge/PhaseSpaceDTFE.jl")
 ```
 
 ## Usage
-Given the initial (`coords_q`) and final (`coords_x`) particle positions (and velocities (`vels`)) of an $N$-body simulation, we estimate the density, velocity and number of streams fields as follows:
+Given the initial (`coords_q`) and final (`coords_x`) particle positions (and velocities `vels`) of an $N$-body simulation, we estimate the density, velocity and number of streams fields as follows:
 
 ```julia
 using PhaseSpaceDTFE
@@ -42,7 +42,7 @@ numberOfStreams_field = numberOfStreams_subbox(coords_arr, ps_dtfe_sb)
 velocitySum_field = velocitySum_subbox(coords_arr, ps_dtfe_sb)
 ```
 
-We strongly recommend going through the Tutorial page for more details.
+Please have a look at the Tutorial page for more details.
 
 ## Contributors
 This code was written by:
