@@ -103,7 +103,7 @@ vel_field = [velocity([L/2., y, z], ps_dtfe) for y in Range, z in Range]
 In multistream regions, the `velocity()`-function returns the velocities of the individual streams (or NaN if `single_stream=true` is set in the function). To obtain the stream-mass weighted summation of the velocities, call the `velocitySum()`-function (reducing to `velocity()` in single-stream regions):
 
 
-```@example tutorial1
+```julia
 vel_field = [velocitySum([L/2., y, z], ps_dtfe) for y in Range, z in Range]
 ```
 
@@ -131,12 +131,12 @@ density_field = density_subbox(coords_arr, ps_dtfe_sb)
 heatmap(Range, Range, log10.(density_field), aspect_ratio=:equal, xlims=(0, L), ylims=(0, L), c=:grays, xlabel="[Mpc]", ylabel="[Mpc]") 
 ```
 the number of streams
-```@example tutorial1
+```julia
 number_field = numberOfStreams_subbox(coords_arr, ps_dtfe_sb)
 heatmap(Range, Range, number_field, aspect_ratio=:equal, xlims=(0, L), ylims=(0, L), clim=(1, 7), xlabel="[Mpc]", ylabel="[Mpc]") 
 ```
 and the mass weighted velocity field
-```@example tutorial1
+```julia
 velocitySum_field = velocitySum_subbox(coords_arr, ps_dtfe_sb)
 ```
 
