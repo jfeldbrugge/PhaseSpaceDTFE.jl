@@ -33,7 +33,7 @@ unwrap_s(s, L) = mod((s + L / 2), L) - L / 2
 """
     translate(coords_q, coords_x, L)
 
-Cosmological N-body simulations normally work with periodic boundary conditions. This function shifts both the intial and final positions of the particles such that they lay in the simulation box in Eulerian space.
+Cosmological N-body simulations normally work with periodic boundary conditions. This function shifts both the initial and final positions of the particles such that they are located in the simulation box in Eulerian space.
 """
 function translate(coords_q, coords_x, L)
     coords_q_ = copy(coords_q)
@@ -54,7 +54,8 @@ end
 """
     frame(coords_q, coords_x, L, pad=0.05)
 
-Cosmological N-body simulations normally work with periodic boundary conditions. This function added a padding (builds a frame) around the simulation box which helps implement the periodic boundary conditions in the Delaunay tesselation.
+Cosmological N-body simulations normally work with periodic boundary conditions. This function adds a frame of periodic particle positions around the simulation box to implement periodicity in the Delaunay tesselation.
+`pad` specifies the width of the frame in units of the simulation box size `L`.
 """
 function frame(coords_q, coords_x, L, pad=0.05)
     for d in 1:3
@@ -83,7 +84,8 @@ end
 """
     frame_velocities(coords_x, velocities, L, pad=0.05)
 
-Cosmological N-body simulations normally work with periodic boundary conditions. This function added a padding (builds a frame) of the velocities around the simulation box which helps implement the periodic boundary conditions in the Delaunay tesselation.
+Cosmological N-body simulations normally work with periodic boundary conditions. This function adds a frame of velocities (corresponding to the periodic particle positions) around the simulation box to implement periodicity in the Delaunay tesselation.
+`pad` specifies the width of the frame in units of the simulation box size `L`.
 """
 function frame_velocities(coords_x, velocities, L, pad=0.05)
     for d in 1:3

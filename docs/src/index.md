@@ -42,7 +42,7 @@ numberOfStreams_field = numberOfStreams_subbox(coords_arr, ps_dtfe_sb)
 velocitySum_field = velocitySum_subbox(coords_arr, ps_dtfe_sb)
 ```
 
-We strongly recommend going through the Tutorial page for more details.
+We strongly recommend going through the [Tutorial](./tutorial.html) page for more details.
 
 ## Contributors
 This code was written by:
