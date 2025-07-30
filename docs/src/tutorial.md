@@ -70,10 +70,10 @@ The first step is the construction of the estimator object from the initial (*La
 ps_dtfe = PS_DTFE_periodic(coords_q, coords_x, vels, m, depth, sim_box)
 
 ## if want to ignore velocities
-#ps_dtfe = PS_DTFE_periodic(coords_q, coords_x, m, depth, box)
+# ps_dtfe = PS_DTFE_periodic(coords_q, coords_x, m, depth, box)
 
 ## for further use without pre-computation, consider saving the estimator to file
-#save("ps_dtfe.jld2, "ps-dtfe", ps_dtfe)
+# save("ps_dtfe.jld2, "ps-dtfe", ps_dtfe)
 nothing
 ```
 
