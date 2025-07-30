@@ -118,22 +118,13 @@ v_d-v_0\\
 
 Now, given a point $x \in \mathbb{R}^d$, we can reconstruct the velocity field at this point by finding the simplex in which the point lies and evaluating the corresponding linear interpolation in the simplex.
 
-Note that the gradient $\nabla v$ is a piecewise constant function. Given the gradient $\nabla v$ for each simplex, it is natural to evaluate velocity deformation modes. In two dimensions, we evaluate the divergence $\theta$ and the curl $\omega$ defined by
-
-```math
-\begin{align}
-\theta &= \nabla \cdot v = \frac{\partial v_x}{\partial x} + \frac{\partial v_y}{\partial y},\\
-\omega &= \frac{\partial v_y}{\partial x} - \frac{\partial v_x}{\partial y}.
-\end{align}
-```
-
-In three dimensions, we evaluate the divergence $\theta$, the shear $\sigma_{ij}$ and the vorticity $\omega = \epsilon^{ijk} \omega_{ij}$ defined by
+Note that the gradient $\nabla v$ is a piecewise constant function. Given the gradient $\nabla v$ for each simplex, it is natural to evaluate velocity deformation modes. In three dimensions, we evaluate the divergence $\theta$, the shear $\sigma_{ij}$ and the vorticity $\omega = \epsilon^{ijk} \omega_{ij}$ defined by
 
 ```math
 \begin{align}
 \theta &= \nabla \cdot v = \frac{\partial v_x}{\partial x} + \frac{\partial v_y}{\partial y} + \frac{\partial v_z}{\partial z},\\
 \sigma_{ij} &= \frac{1}{2} \left[\frac{\partial v_i}{\partial x_j} + \frac{\partial v_j}{\partial x_i}\right] - \frac{1}{3} (\nabla \cdot v) \delta_{ij},\\
-\omega_{ij} &=\frac{1}{2} \left[\frac{\partial v_i}{\partial x_j} - \frac{\partial v_j}{\partial x_i}\right]\,.
+\omega_{ij} &=\frac{1}{2} \left[\frac{\partial v_i}{\partial x_j} - \frac{\partial v_j}{\partial x_i}\right]
 \end{align}
 ```
 
