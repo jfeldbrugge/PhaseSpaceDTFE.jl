@@ -43,8 +43,8 @@ velocitySum_field = velocitySum_subbox(coords_arr, ps_dtfe_sb)
 
 ## Contributors
 This code was written by:
-* Job Feldbrugge
-* Benjamin Hertzsch
+* Job Feldbrugge ([job.feldbrugge@ed.ac.uk](job.feldbrugge@ed.ac.uk))
+* Benjamin Hertzsch ([benjamin.hertzsch@ed.ac.uk](benjamin.hertzsch@ed.ac.uk))
 
 We thank:
 * Bram Alferink
