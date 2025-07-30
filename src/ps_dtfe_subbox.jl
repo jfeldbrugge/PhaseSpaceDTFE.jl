@@ -24,7 +24,7 @@ end
 """
     ps_dtfe_subbox(coords_q, coords_x, m, depth, sim_box::SimBox; N_target=128, pad=0.05, dir="./ps_dtfe")
 
-Generates an Phase-Space DTFE subbox given the initial positions and the final positions of the N-body particles. The Boundary Volume Hirarchy goes depth levels deep.
+Construct the Phase-Space DTFE subbox estimator given the initial positions `coords_q` and final positions `coords_x` of an N-body simulation, assuming periodic boundary positions. The Boundary Volume Hirarchy goes `depth` levels deep. For data types, see documentation of `PS_DTFE_periodic()`. The keyword argument `N_target=128` specifies the number of particles (`N_target`^3) per subbox. `pad` is the framing width in units of `L`. `dir` is the data storage directory.
 """
 function ps_dtfe_subbox(coords_q, coords_x, m, depth, sim_box::SimBox; N_target=128, pad=0.05, dir="./ps_dtfe")
 
@@ -54,7 +54,7 @@ end
 """
     ps_dtfe_subbox(coords_q, coords_x, velocities, m, depth, sim_box::SimBox; N_target=128, pad=0.05, dir="./ps_dtfe")
 
-Generates an Phase-Space DTFE subbox given the initial positions and the final positions and final velocities of the N-body particles. The Boundary Volume Hirarchy goes depth levels deep.
+Construct the Phase-Space DTFE subbox estimator given the initial positions `coords_q`, final positions `coords_x` and velocities `velocities` of an N-body simulation, assuming periodic boundary positions. The Boundary Volume Hirarchy goes `depth` levels deep. For data types, see documentation of `PS_DTFE_periodic()`. The keyword argument `N_target=128` specifies the number of particles (`N_target`^3) per subbox. `pad` is the framing width in units of `L`. `dir` is the data storage directory.
 """
 function ps_dtfe_subbox(coords_q, coords_x, velocities, m, depth, sim_box::SimBox; N_target=128, pad=0.05, dir="./ps_dtfe")
 
@@ -103,7 +103,7 @@ end
 """
     get_subbox_estimator(coords_q, coords_x, velocities, idx, N_sub, m, depth, sim_box::SimBox; pad=0.05, dir="./ps_dtfe")
 
-Obtain the subbox estimator associated to a given position.
+Construct the Phase-Space DTFE object for given coordinates and velocities. Called for each subbox estimator construction.
 """
 function get_subbox_estimator(coords_q, coords_x, velocities, idx, N_sub, m, depth, sim_box::SimBox; pad=0.05, dir="./ps_dtfe")
     box = 1. / N_sub * sim_box.L .* hcat(idx, idx .+ 1)
@@ -121,7 +121,7 @@ end
 """
     get_coords_in_subbox(coords, idx, N_sub, L)
 
-Obtain the positions in a given subbox.
+From a given coordinates array `coords`, get those coordinates contained in subbox number `idx`.
 """
 function get_coords_in_subbox(coords, idx, N_sub, L)
     box = 1. / N_sub * L .* hcat(idx, idx .+ 1)
@@ -190,7 +190,7 @@ end
 """
     density_subbox(coords_arr, ps_dtfe_sb)
 
-Reconstruct the Phase-Space DTFE density in the point p.
+Evaluate the Phase-Space DTFE density estimates in given coordinates `coords_arr` from the `PS_DTFE_subbox` object `ps_dtfe_sb`. `coords_arr` can be of any shape `(..., 3)`.
 """
 function density_subbox(coords_arr, ps_dtfe_sb)
     N_sub = ps_dtfe_sb.N_sub
@@ -218,7 +218,7 @@ end
 """
     numberOfStreams_subbox(coords_arr, ps_dtfe_sb)
 
-Evaluates the number of streams the point p is in.
+Evaluate the number of streams field in given coordinates `coords_arr` from the `PS_DTFE_subbox` object `ps_dtfe_sb`. `coords_arr` can be of any shape `(..., 3)`.
 """
 function numberOfStreams_subbox(coords_arr, ps_dtfe_sb)
     N_sub = ps_dtfe_sb.N_sub
@@ -246,7 +246,8 @@ end
 """
     velocity_subbox(coords_arr, ps_dtfe_sb)
 
-Reconstructs the Phase-Space DTFE velocities in an array of points.
+Evaluate the Phase-Space DTFE velocity estimates in given coordinates `coords_arr` from the `PS_DTFE_subbox` object `ps_dtfe_sb`. `coords_arr` can be of any shape `(..., 3)`.
+In the current code release, `[NaN NaN NaN]` is returned in multistream regions, i.e. individual stream velocities are not supported.
 """
 function velocity_subbox(coords_arr, ps_dtfe_sb)
     N_sub = ps_dtfe_sb.N_sub
@@ -274,7 +275,7 @@ end
 """
     velocitySum_subbox(coords_arr, ps_dtfe_sb)
 
-Reconstructs the mass weighted sum of the Phase-Space DTFE velocities in an array of points.
+Evaluate the stream-mass weighted sum of the Phase-Space DTFE stream velocity estimates in given coordinates `coords_arr` from the `PS_DTFE_subbox` object `ps_dtfe_sb`. `coords_arr` can be of any shape `(..., 3)`.
 """
 function velocitySum_subbox(coords_arr, ps_dtfe_sb)
     N_sub = ps_dtfe_sb.N_sub
@@ -302,6 +303,8 @@ end
 ## modular subbox calculations: single subbox ---------------------------------
 """
     get_subboxes(ps_dtfe_sub::PS_DTFE_subbox)
+
+Get all subbox indices.
 """
 function get_subboxes(ps_dtfe_sub::PS_DTFE_subbox)
     [[i, j, k] for i in 0:ps_dtfe_sub.N_sub-1, j in 0:ps_dtfe_sub.N_sub-1, k in 0:ps_dtfe_sub.N_sub-1][:]
@@ -309,6 +312,9 @@ end
 
 """
     get_coords_chunk(coords, m, m_idx, random=false)
+
+Under development: Chunk up an array `coords` of coordinates (size `(..., 3)`) into `m` chunks. Returns `m_idx`th chunk of coordinates.
+If `random=true`, randomly permute before chunking up. For usage in HPC applications (tutorial in forthcoming versions).
 """
 function get_coords_chunk(coords, m, m_idx, random=false)
     indices = CartesianIndices(size(coords))
