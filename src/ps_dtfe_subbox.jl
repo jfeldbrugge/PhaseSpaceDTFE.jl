@@ -304,7 +304,7 @@ end
 """
     get_subboxes(ps_dtfe_sub::PS_DTFE_subbox)
 
-    Get all subbox indices.
+Get all subbox indices.
 """
 function get_subboxes(ps_dtfe_sub::PS_DTFE_subbox)
     [[i, j, k] for i in 0:ps_dtfe_sub.N_sub-1, j in 0:ps_dtfe_sub.N_sub-1, k in 0:ps_dtfe_sub.N_sub-1][:]
@@ -313,8 +313,8 @@ end
 """
     get_coords_chunk(coords, m, m_idx, random=false)
 
-    Under development: Chunk up an array `coords` of coordinates (size `(..., 3)`) into `m` chunks. Returns `m_idx`th chunk of coordinates.
-    If `random=true`, randomly permute before chunking up. For usage in HPC applications (tutorial in forthcoming versions).
+Under development: Chunk up an array `coords` of coordinates (size `(..., 3)`) into `m` chunks. Returns `m_idx`th chunk of coordinates.
+If `random=true`, randomly permute before chunking up. For usage in HPC applications (tutorial in forthcoming versions).
 """
 function get_coords_chunk(coords, m, m_idx, random=false)
     indices = CartesianIndices(size(coords))
