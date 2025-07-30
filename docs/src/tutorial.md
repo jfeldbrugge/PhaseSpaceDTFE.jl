@@ -50,6 +50,8 @@ Before going though through PS-DTFE method, we demonstrate the traditional DTFE 
 ```@example tutorial1
 ## construct estimator
 ps_dtfe = PS_DTFE_periodic(coords_x, coords_x, vels, m, depth, sim_box)
+## This is equivalent to the DTFE_periodic routine
+# ps_dtfe = DTFE_periodic(coords_x, vels, m, depth, sim_box)
 
 ## evaluate density field
 Range = 0:2.0:100.

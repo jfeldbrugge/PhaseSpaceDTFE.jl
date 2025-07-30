@@ -200,6 +200,24 @@ function PS_DTFE_periodic(coords_q, coords_x, m, depth, sim_box; pad=0.05)
 end
 
 """
+    DTFE_periodic(coords_q, coords_x, velocities, m, depth, sim_box; pad=0.05)
+
+Constructs the DTFE-object from the final positions `coords_x` and velocities `velocities` assuming periodic boundary conditions. These are `Float64` matrices of size `(N,3)`. `m` is the particle mass, a single `Float64` or a matching matrix `(N, 3)`. `pad` specifies the framing width in units of `L`.
+"""
+function DTFE_periodic(coords_x, velocities, m, depth, sim_box; pad=0.05)
+    PS_DTFE_periodic(coords_x, coords_x, velocities, m, depth, sim_box; pad)
+end
+
+"""
+    DTFE_periodic(coords_q, coords_x, m, depth, sim_box; pad=0.05)
+
+Constructs the DTFE-object from the final positions `coords_x` assuming periodic boundary conditions. These are `Float64` matrices of size `(N,3)`. `m` is the particle mass, a single `Float64` or a matching matrix `(N, 3)`. `pad` specifies the framing width in units of `L`.
+"""
+function DTFE_periodic(coords_x, m, depth, sim_box; pad=0.05)
+    PS_DTFE_periodic(coords_x, coords_x, m, depth, sim_box; pad)
+end
+
+"""
     density(p::Vector{Float64}, estimator::PS_DTFE)
 
 Evaluate the Phase-Space DTFE density estimate in the point `p`.
