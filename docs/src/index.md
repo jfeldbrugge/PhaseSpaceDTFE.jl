@@ -46,8 +46,8 @@ Please have a look at the Tutorial page for more details.
 
 ## Contributors
 This code was written by:
-* Job Feldbrugge ([job.feldbrugge@ed.ac.uk](job.feldbrugge@ed.ac.uk))
-* Benjamin Hertzsch ([benjamin.hertzsch@ed.ac.uk](benjamin.hertzsch@ed.ac.uk))
+* Job Feldbrugge ([job.feldbrugge@ed.ac.uk](mailto:job.feldbrugge@ed.ac.uk))
+* Benjamin Hertzsch ([benjamin.hertzsch@ed.ac.uk](mailto:benjamin.hertzsch@ed.ac.uk))
 
 We thank:
 * Bram Alferink
