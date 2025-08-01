@@ -309,34 +309,3 @@ Get all subbox indices.
 function get_subboxes(ps_dtfe_sub::PS_DTFE_subbox)
     [[i, j, k] for i in 0:ps_dtfe_sub.N_sub-1, j in 0:ps_dtfe_sub.N_sub-1, k in 0:ps_dtfe_sub.N_sub-1][:]
 end
-
-"""
-    get_coords_chunk(coords, m, m_idx, random=false)
-
-Under development: Chunk up an array `coords` of coordinates (size `(..., 3)`) into `m` chunks. Returns `m_idx`th chunk of coordinates.
-If `random=true`, randomly permute before chunking up. For usage in HPC applications (tutorial in forthcoming versions).
-"""
-function get_coords_chunk(coords, m, m_idx, random=false)
-    indices = CartesianIndices(size(coords))
-        
-    flat_coords  = reshape(coords, :)
-    flat_indices = reshape(collect(indices), :)
-    println("flat_coords = ", flat_coords[1], " ", flat_coords[end])
-    println("flat_indices = ", flat_indices[1], " ", flat_indices[end])
-
-    if random  # permute coordinates for approx. equal computational resources across jobs
-        rng = MersenneTwister(1)   # seed fixed for same permutation on each job
-        perm = randperm(rng, length(flat_coords))
-
-        flat_coords  = flat_coords[perm]
-        flat_indices = flat_indices[perm]
-    end
-
-    println("flat_coords = ", flat_coords[1], " ", flat_coords[end])
-    println("flat_indices = ", flat_indices[1], " ", flat_indices[end])
-
-    coords_chunks = chunks(flat_coords; n=m)
-    index_chunks  = chunks(flat_indices; n=m)
-
-    collect(coords_chunks[m_idx]), collect(index_chunks[m_idx])
-end
