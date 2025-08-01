@@ -5,6 +5,8 @@ CurrentModule = PhaseSpaceDTFE
 # Citations
 This code accompanies the publication [Phase-Space Delaunay Tesselation Field Estimator, Job Feldbrugge, 2025](https://academic.oup.com/mnras/article/536/1/807/7915986). We cite this publication when using the code in your work.
 
+10.5281/zenodo.16637561
+
 Please consider citing the following papers that were foundational to the development of the PS-DTFE method:
 
 * Delaunay Tessellation Field Estimator: 
