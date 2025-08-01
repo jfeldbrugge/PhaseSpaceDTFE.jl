@@ -58,8 +58,13 @@ using Test
     @test PhaseSpaceDTFE.density([L/2., L/2., L/2.], dtfe) ≈ 6.626781014509928
     @test PhaseSpaceDTFE.numberOfStreams([L/2., L/2., L/2.], dtfe) == 1
 
-    
+    ## Test the PS_DTFE_subbox estimator with velocity information
+    ps_dtfe_sb = ps_dtfe_subbox(coords_q, coords_x, vels, m, depth, sim_box; N_target=32)
+    @test PhaseSpaceDTFE.density_subbox([[L/2., L/2., L/2.], [L/2., L/2., L/2.]], ps_dtfe_sb) ≈ [18.353994834770916, 18.353994834770916] 
+    @test PhaseSpaceDTFE.numberOfStreams_subbox([[L/2., L/2., L/2.], [L/2., L/2., L/2.]], ps_dtfe_sb) == [3, 3]
     
 
+    rm("ps_dtfe", recursive=true)
+    # rm("ps_dtfe_sb.jld2")
     
 end
