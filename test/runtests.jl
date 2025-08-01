@@ -36,17 +36,18 @@ using Test
     (coords_q, _, _) = load_data("data/snapshot_000.hdf5")
     (coords_x, vels, _) = load_data("data/snapshot_002.hdf5")
 
-    ## construct estimator
+    ## Test the PS_DTFE_periodic estimator with velocity information
     ps_dtfe = PS_DTFE_periodic(coords_x, coords_x, vels, m, depth, sim_box)
     @test PhaseSpaceDTFE.density([L/2., L/2., L/2.], ps_dtfe) ≈ 6.626781014509928
     @test PhaseSpaceDTFE.numberOfStreams([L/2., L/2., L/2.], ps_dtfe) == 1
+    @test PhaseSpaceDTFE.velocity([L/2., L/2., L/2.], ps_dtfe) ≈ [-187.2814096743568 -312.3924051854628 433.1752225304233]
 
+    ## Test the PS_DTFE_periodic estimator without velocity information
     ps_dtfe = PS_DTFE_periodic(coords_x, coords_x, m, depth, sim_box)
     @test PhaseSpaceDTFE.density([L/2., L/2., L/2.], ps_dtfe) ≈ 6.626781014509928
     @test PhaseSpaceDTFE.numberOfStreams([L/2., L/2., L/2.], ps_dtfe) == 1
-    # output = sprint(PhaseSpaceDTFE.findBox, [L/2. + 0.1, L/2. + 0.1, L/2. + 0.1], ps_dtfe.tree)
-    # println("test ", output)
-    # @test output == "[50.0 53.125; 50.0 53.125; 50.0 53.125]"
+
+    
     
     
 
