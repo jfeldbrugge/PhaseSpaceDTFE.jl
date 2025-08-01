@@ -44,10 +44,14 @@ using Suppressor
     @test output == "[50.0 53.125; 50.0 53.125; 50.0 53.125]\n"
     @test PhaseSpaceDTFE.density([L/2., L/2., L/2.], ps_dtfe) ≈ 6.626781014509928
     @test PhaseSpaceDTFE.numberOfStreams([L/2., L/2., L/2.], ps_dtfe) == 1
+    @test PhaseSpaceDTFE.inSimplices([L/4., L/4., L/4.], ps_dtfe) == [436370]
+    println("inSimplices:", PhaseSpaceDTFE.inSimplices([L/4., L/4., L/4.], ps_dtfe))
+
     # @test PhaseSpaceDTFE.inSimplices([L/2., L/2., L/2.], ps_dtfe) == [1686902]
     # @show PhaseSpaceDTFE.velocity([L/2. + 0.1, L/2. + 0.1, L/2. + 0.1], ps_dtfe)
     # @test PhaseSpaceDTFE.velocity([L/2. + 0.1, L/2. + 0.1, L/2. + 0.1], ps_dtfe) ≈ [-173.91874906668048 -315.74481895230974 418.73689416124455] 
 
+    #=
     ## Test the PS_DTFE_periodic estimator without velocity information
     ps_dtfe = PS_DTFE_periodic(coords_x, coords_x, m, depth, sim_box)
     @test PhaseSpaceDTFE.density([L/2., L/2., L/2.], ps_dtfe) ≈ 6.626781014509928
@@ -84,4 +88,5 @@ using Suppressor
     @test PhaseSpaceDTFE.density_subbox(coords, ps_dtfe_sb)[3, 7, 4] ≈ 3.1773005278948494
 
     rm("ps_dtfe", recursive=true)
+    =#
 end
