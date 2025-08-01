@@ -2,11 +2,12 @@
 [![Stable](https://img.shields.io/badge/docs-stable-blue.svg)](https://jfeldbrugge.github.io/PhaseSpaceDTFE.jl/stable/)
 [![Dev](https://img.shields.io/badge/docs-dev-blue.svg)](https://jfeldbrugge.github.io/PhaseSpaceDTFE.jl/dev/)
 [![Build Status](https://github.com/jfeldbrugge/PhaseSpaceDTFE.jl/actions/workflows/CI.yml/badge.svg?branch=main)](https://github.com/jfeldbrugge/PhaseSpaceDTFE.jl/actions/workflows/CI.yml?query=branch%3Amain)
+[![codecov](https://codecov.io/github/jfeldbrugge/PhaseSpaceDTFE.jl/graph/badge.svg?token=QpOFnAiPby)](https://codecov.io/github/jfeldbrugge/PhaseSpaceDTFE.jl)
+
 
 <figure>
 <a href='docs/src/assets/figures/density.png'><img src='docs/src/assets/figures/density.png' width=100% /></a>
 </figure>
-
 
 The density and velocity fields of an N-body simulation are estimated with the Phase-Space Delaunay Tessellation Field Estimator implemented in Julia. This code accompanies the publication [Phase-Space Delaunay Tesselation Field Estimator](https://academic.oup.com/mnras/article/536/1/807/7915986). When using this code, please cite the publications listed in the citation section of the documentation.
 
