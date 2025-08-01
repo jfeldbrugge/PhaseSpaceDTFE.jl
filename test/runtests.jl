@@ -40,6 +40,10 @@ using Test
     ps_dtfe = PS_DTFE_periodic(coords_x, coords_x, vels, m, depth, sim_box)
     @test PhaseSpaceDTFE.density([L/2., L/2., L/2.], ps_dtfe) ≈ 6.626781014509928
     @test PhaseSpaceDTFE.numberOfStreams([L/2., L/2., L/2.], ps_dtfe) == 1
+
+    ps_dtfe = PS_DTFE_periodic(coords_x, coords_x, m, depth, sim_box)
+    @test PhaseSpaceDTFE.density([L/2., L/2., L/2.], ps_dtfe) ≈ 6.626781014509928
+    @test PhaseSpaceDTFE.numberOfStreams([L/2., L/2., L/2.], ps_dtfe) == 1
     # output = sprint(PhaseSpaceDTFE.findBox, [L/2. + 0.1, L/2. + 0.1, L/2. + 0.1], ps_dtfe.tree)
     # println("test ", output)
     # @test output == "[50.0 53.125; 50.0 53.125; 50.0 53.125]"
