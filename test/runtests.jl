@@ -1,5 +1,6 @@
 using PhaseSpaceDTFE
 using Test
+using Suppressor
 
 @testset "PhaseSpaceDTFE.jl" begin
     # Write your tests here.
@@ -38,6 +39,8 @@ using Test
 
     ## Test the PS_DTFE_periodic estimator with velocity information
     ps_dtfe = PS_DTFE_periodic(coords_x, coords_x, vels, m, depth, sim_box)
+    output = @capture_out PhaseSpaceDTFE.findBox([L/2. + 0.1, L/2. + 0.1, L/2. + 0.1], ps_dtfe.tree)
+    @test output == "[50.0 53.125; 50.0 53.125; 50.0 53.125]\n"
     @test PhaseSpaceDTFE.density([L/2., L/2., L/2.], ps_dtfe) ≈ 6.626781014509928
     @test PhaseSpaceDTFE.numberOfStreams([L/2., L/2., L/2.], ps_dtfe) == 1
     # @test PhaseSpaceDTFE.inSimplices([L/2., L/2., L/2.], ps_dtfe) == [1686902]
@@ -69,7 +72,6 @@ using Test
     ps_dtfe_sb = ps_dtfe_subbox(coords_q, coords_x, m, depth, sim_box; N_target=32)
     @test PhaseSpaceDTFE.density_subbox([[L/2., L/2., L/2.], [L/2., L/2., L/2.]], ps_dtfe_sb) ≈ [18.353994834770916, 18.353994834770916] 
     @test PhaseSpaceDTFE.numberOfStreams_subbox([[L/2., L/2., L/2.], [L/2., L/2., L/2.]], ps_dtfe_sb) == [3, 3]
-    
 
     rm("ps_dtfe", recursive=true)
 end
