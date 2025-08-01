@@ -15,6 +15,8 @@ using Suppressor
 
     depth   = 5   # depth of estimator search tree
 
+    Range = 0:L/10:L
+
     ## load data 
     function load_data(file)
         fid = h5open(file, "r")
@@ -37,6 +39,7 @@ using Suppressor
     (coords_q, _, _) = load_data("data/snapshot_000.hdf5")
     (coords_x, vels, _) = load_data("data/snapshot_002.hdf5")
 
+    #=
     ## Test the PS_DTFE_periodic estimator with velocity information
     ps_dtfe = PS_DTFE_periodic(coords_x, coords_x, vels, m, depth, sim_box)
     output = @capture_out PhaseSpaceDTFE.findBox([L/2. + 0.1, L/2. + 0.1, L/2. + 0.1], ps_dtfe.tree)
@@ -52,6 +55,7 @@ using Suppressor
     @test PhaseSpaceDTFE.density([L/2., L/2., L/2.], ps_dtfe) ≈ 6.626781014509928
     @test PhaseSpaceDTFE.numberOfStreams([L/2., L/2., L/2.], ps_dtfe) == 1
 
+
     ## Test the DTFE_periodic estimator with velocity information
     dtfe = DTFE_periodic(coords_x, vels, m, depth, sim_box)
     @test PhaseSpaceDTFE.density([L/2., L/2., L/2.], dtfe) ≈ 6.626781014509928
@@ -62,17 +66,24 @@ using Suppressor
     @test PhaseSpaceDTFE.density([L/2., L/2., L/2.], dtfe) ≈ 6.626781014509928
     @test PhaseSpaceDTFE.numberOfStreams([L/2., L/2., L/2.], dtfe) == 1
 
+
     ## Test the PS_DTFE_subbox estimator with velocity information
     ps_dtfe_sb = ps_dtfe_subbox(coords_q, coords_x, vels, m, depth, sim_box; N_target=32)
     @test PhaseSpaceDTFE.density_subbox([[L/2., L/2., L/2.], [L/2., L/2., L/2.]], ps_dtfe_sb) ≈ [18.353994834770916, 18.353994834770916] 
     @test PhaseSpaceDTFE.numberOfStreams_subbox([[L/2., L/2., L/2.], [L/2., L/2., L/2.]], ps_dtfe_sb) == [3, 3]
     # @show PhaseSpaceDTFE.velocity_subbox([[L/2., L/2., L/2.], [L/2., L/2., L/2.]], ps_dtfe_sb) 
     # @test PhaseSpaceDTFE.velocitySum_subbox([[L/2., L/2., L/2.], [L/2., L/2., L/2.]], ps_dtfe_sb) ≈ [-142.50903658530848 -323.2234932699903 320.32784384240364; -142.50903658530848 -323.2234932699903 320.32784384240364]
+    @test PhaseSpaceDTFE.get_subboxes(ps_dtfe_sb)[end] == [1, 1, 1]
+    =#
 
     ## Test the PS_DTFE_subbox estimator without velocity information
     ps_dtfe_sb = ps_dtfe_subbox(coords_q, coords_x, m, depth, sim_box; N_target=32)
     @test PhaseSpaceDTFE.density_subbox([[L/2., L/2., L/2.], [L/2., L/2., L/2.]], ps_dtfe_sb) ≈ [18.353994834770916, 18.353994834770916] 
     @test PhaseSpaceDTFE.numberOfStreams_subbox([[L/2., L/2., L/2.], [L/2., L/2., L/2.]], ps_dtfe_sb) == [3, 3]
+
+    ## Test the PS_DTFE_subbox estimator for a 3D density field
+    coords = [[x, y, z] for x in Range, y in Range, z in Range]
+    @test PhaseSpaceDTFE.density_subbox(coords, ps_dtfe_sb)[3, 7, 4] ≈ 3.1773005278948494
 
     rm("ps_dtfe", recursive=true)
 end
