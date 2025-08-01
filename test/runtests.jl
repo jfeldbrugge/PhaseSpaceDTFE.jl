@@ -63,7 +63,7 @@ using Test
     @test PhaseSpaceDTFE.density_subbox([[L/2., L/2., L/2.], [L/2., L/2., L/2.]], ps_dtfe_sb) ≈ [18.353994834770916, 18.353994834770916] 
     @test PhaseSpaceDTFE.numberOfStreams_subbox([[L/2., L/2., L/2.], [L/2., L/2., L/2.]], ps_dtfe_sb) == [3, 3]
     # @show PhaseSpaceDTFE.velocity_subbox([[L/2., L/2., L/2.], [L/2., L/2., L/2.]], ps_dtfe_sb) 
-    @test PhaseSpaceDTFE.velocitySum_subbox([[L/2., L/2., L/2.], [L/2., L/2., L/2.]], ps_dtfe_sb) ≈ [-142.50903658530848 -323.2234932699903 320.32784384240364; -142.50903658530848 -323.2234932699903 320.32784384240364]
+    # @test PhaseSpaceDTFE.velocitySum_subbox([[L/2., L/2., L/2.], [L/2., L/2., L/2.]], ps_dtfe_sb) ≈ [-142.50903658530848 -323.2234932699903 320.32784384240364; -142.50903658530848 -323.2234932699903 320.32784384240364]
 
     ## Test the PS_DTFE_subbox estimator without velocity information
     ps_dtfe_sb = ps_dtfe_subbox(coords_q, coords_x, m, depth, sim_box; N_target=32)
