@@ -44,9 +44,9 @@ using Suppressor
     @test output == "[50.0 53.125; 50.0 53.125; 50.0 53.125]\n"
     @test PhaseSpaceDTFE.density([L/2., L/2., L/2.], ps_dtfe) ≈ 6.626781014509928
     @test PhaseSpaceDTFE.numberOfStreams([L/2., L/2., L/2.], ps_dtfe) == 1
-    @test PhaseSpaceDTFE.inSimplices([L/4., L/4., L/4.], ps_dtfe) == [436370]
-    println("inSimplices:", PhaseSpaceDTFE.inSimplices([L/4., L/4., L/4.], ps_dtfe))
-
+    #@test PhaseSpaceDTFE.inSimplices([L/4., L/4., L/4.], ps_dtfe) == [436370]
+    println("inSimplices:", ps_dtfe.simplices[PhaseSpaceDTFE.inSimplices([L/4., L/4., L/4.], ps_dtfe)[1], :])
+    @test ps_dtfe.simplices[PhaseSpaceDTFE.inSimplices([L/4., L/4., L/4.], ps_dtfe)[1], :] == [70672, 58387, 70608, 66511]
     # @test PhaseSpaceDTFE.inSimplices([L/2., L/2., L/2.], ps_dtfe) == [1686902]
     # @show PhaseSpaceDTFE.velocity([L/2. + 0.1, L/2. + 0.1, L/2. + 0.1], ps_dtfe)
     # @test PhaseSpaceDTFE.velocity([L/2. + 0.1, L/2. + 0.1, L/2. + 0.1], ps_dtfe) ≈ [-173.91874906668048 -315.74481895230974 418.73689416124455] 
