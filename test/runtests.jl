@@ -47,6 +47,16 @@ using Test
     @test PhaseSpaceDTFE.density([L/2., L/2., L/2.], ps_dtfe) ≈ 6.626781014509928
     @test PhaseSpaceDTFE.numberOfStreams([L/2., L/2., L/2.], ps_dtfe) == 1
 
+    ## Test the DTFE_periodic estimator with velocity information
+    dtfe = DTFE_periodic(coords_x, vels, m, depth, sim_box)
+    @test PhaseSpaceDTFE.density([L/2., L/2., L/2.], dtfe) ≈ 6.626781014509928
+    @test PhaseSpaceDTFE.numberOfStreams([L/2., L/2., L/2.], dtfe) == 1
+
+    ## Test the DTFE_periodic estimator without velocity information
+    dtfe = DTFE_periodic(coords_x, m, depth, sim_box)
+    @test PhaseSpaceDTFE.density([L/2., L/2., L/2.], dtfe) ≈ 6.626781014509928
+    @test PhaseSpaceDTFE.numberOfStreams([L/2., L/2., L/2.], dtfe) == 1
+
     
     
     
