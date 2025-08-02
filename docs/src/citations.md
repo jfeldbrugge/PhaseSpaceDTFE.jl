@@ -21,6 +21,7 @@ This code accompanies the publication [Phase-Space Delaunay Tessellation Field E
 }
 
 @misc{FeldbruggeHertzsch2025,
+  author = {Feldbrugge, Job and Hertzsch, Benjamin},
   title={PhaseSpaceDTFE.jl -- Julia implementation of the Phase-Space Delaunay Tessellation Field Estimator},
   year={2025},
   month={aug}
