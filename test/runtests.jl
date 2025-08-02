@@ -49,7 +49,7 @@ using Suppressor
     @test ps_dtfe.simplices[PhaseSpaceDTFE.inSimplices([L/4., L/4., L/4.], ps_dtfe)[1], :] == [70672, 58387, 70608, 66511]
     # @test PhaseSpaceDTFE.inSimplices([L/2., L/2., L/2.], ps_dtfe) == [1686902]
     # @show PhaseSpaceDTFE.velocity([L/2. + 0.1, L/2. + 0.1, L/2. + 0.1], ps_dtfe)
-    # @test PhaseSpaceDTFE.velocity([L/2. + 0.1, L/2. + 0.1, L/2. + 0.1], ps_dtfe) ≈ [-173.91874906668048 -315.74481895230974 418.73689416124455] 
+    @test PhaseSpaceDTFE.velocity([L/2. + 0.1, L/2. + 0.1, L/2. + 0.1], ps_dtfe) ≈ [-173.91874906668048 -315.74481895230974 418.73689416124455] 
 
     ## Test the PS_DTFE_periodic estimator without velocity information
     ps_dtfe = PS_DTFE_periodic(coords_x, coords_x, m, depth, sim_box)
