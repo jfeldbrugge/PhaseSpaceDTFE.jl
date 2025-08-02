@@ -3,7 +3,7 @@ CurrentModule = PhaseSpaceDTFE
 ```
 
 # Citations
-This code accompanies the publication [Phase-Space Delaunay Tesselation Field Estimator, Job Feldbrugge, 2025](https://academic.oup.com/mnras/article/536/1/807/7915986). When using the code in your work, please cite both the paper
+This code accompanies the publication [Phase-Space Delaunay Tessellation Field Estimator, Job Feldbrugge, 2025](https://academic.oup.com/mnras/article/536/1/807/7915986). When using the code in your work, please cite both the paper and the code as
 ```
 @article{Feldbrugge2024,
     author = {Feldbrugge, Job},
@@ -19,18 +19,15 @@ This code accompanies the publication [Phase-Space Delaunay Tesselation Field Es
     url = {https://doi.org/10.1093/mnras/stae2627},
     eprint = {https://academic.oup.com/mnras/article-pdf/536/1/807/61019429/stae2627.pdf},
 }
-```
-and the code
-```
+
 @misc{FeldbruggeHertzsch2025,
-  title={PhaseSpaceDTFE.jl —- Julia implementation of the Phase-Space Delaunay Tesselation Field Estimator},
+  title={PhaseSpaceDTFE.jl -- Julia implementation of the Phase-Space Delaunay Tessellation Field Estimator},
   year={2025},
   month={aug}
   doi={10.5281/zenodo.16637561},
   url={http://dx.doi.org/10.5281/zenodo.16637561}
 }
 ```
-
 
 Please also consider citing the following papers that have been foundational to the development of the PS-DTFE method:
 
