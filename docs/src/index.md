@@ -20,7 +20,7 @@ pkg> add PhaseSpaceDTFE
 Or, equivalently, via the `Pkg` API:
 
 ```julia
-julia> import Pkg; Pkg.add("PhaseSpaceDTFE.jl")
+julia> import Pkg; Pkg.add("PhaseSpaceDTFE")
 ```
 
 ## Usage

@@ -33,8 +33,9 @@ This code accompanies the publication [Phase-Space Delaunay Tessellation Field E
 Please also consider citing the following papers that have been foundational to the development of the PS-DTFE method:
 
 * Delaunay Tessellation Field Estimator: 
-  * [Density estimators in particle hydrodynamics: DTFE versus regular SPH, by F. I. Pelupessy, W. E. Schaap, and R. van de Weygaert, 2003](https://www.aanda.org/articles/aa/abs/2003/20/aa3273/aa3273.html), 
-  * The PhD thesis of W. E. Schaap, 2007, University of Groningen, Netherlands
+  * [Density estimators in particle hydrodynamics: DTFE versus regular SPH, by F.I. Pelupessy, W.E. Schaap, and R. van de Weygaert, 2003](https://www.aanda.org/articles/aa/abs/2003/20/aa3273/aa3273.html), 
+  * The PhD thesis of W.E. Schaap, 2007, University of Groningen, Netherlands
 * Key developments on phase-space methods in large-scale structure:
-  * [The multi-stream flows and the dynamics of the cosmic web, by Sergei F. Shandarin, 2011](https://iopscience.iop.org/article/10.1088/1475-7516/2011/05/015/pdf)
+  * [The multi-stream flows and the dynamics of the cosmic web, by S.F. Shandarin, 2011](https://iopscience.iop.org/article/10.1088/1475-7516/2011/05/015/pdf)
   * [Tracing the Dark Matter Sheet in Phase Space, by T. Abel, O. Hahn, R. Kaehler, 2012](https://academic.oup.com/mnras/article/427/1/61/1032914?login=false)
+  * [The properties of cosmic velocity fields, by O. Hahn, R.E. Angulo, T. Abel, 2015](https://academic.oup.com/mnras/article/454/4/3920/995772)
