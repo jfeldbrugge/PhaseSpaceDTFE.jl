@@ -54,7 +54,7 @@ ps_dtfe = PS_DTFE_periodic(coords_x, coords_x, vels, m, depth, sim_box)
 # ps_dtfe = DTFE_periodic(coords_x, vels, m, depth, sim_box)
 
 ## evaluate density field
-Range = 0:0.1:100.
+Range = 0:0.2:100.
 density_field = [PhaseSpaceDTFE.density([L/2., y, z], ps_dtfe) for y in Range, z in Range]
 heatmap(Range, Range, log10.(density_field), aspect_ratio=:equal, xlims=(0, L), ylims=(0, L), c=:grays, xlabel="[Mpc]", ylabel="[Mpc]")
 ```

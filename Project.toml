@@ -1,7 +1,7 @@
 name = "PhaseSpaceDTFE"
 uuid = "4bbf42c9-fe82-44eb-a825-ab877c23bdb8"
 authors = ["Job Feldbrugge <14946916+jfeldbrugge@users.noreply.github.com> and contributors"]
-version = "1.0.0-DEV"
+version = "1.0.0"
 
 [deps]
 LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
