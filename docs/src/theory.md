@@ -7,12 +7,12 @@ The *Delaunay Tessellation Field Estimator* (DTFE) and its extension to phase sp
 
 ## The Delaunay Tessellation Field Estimator
 Delaunay Tessellation Field Estimator (DTFE) was developed by Willem Schaap and Rien van de Weijgaert ([Schaap and Weijgaert 2004](https://www.astro.rug.nl/~weygaert/tim1publication/weyval2004.pdf), [Willem Schaap 2007](https://web.archive.org/web/20071210093614/http://dissertations.ub.rug.nl/faculties/science/2007/w.e.schaap/?FullItemRecord=ON)). The DTFE method dynamically adapts to the variation of the density and geometry of the point set. The method is used in cosmological datasets (see for example [the astronomy picture of the day, 7 November 2007](https://apod.nasa.gov/apod/ap071107.html)) as it can simultaneously capture the geometry of the voids, walls, filaments and clusters and preserve the total mass of the pointset. The total mass is not preserved in the closely related 
-[natural neighbor interpolation](https://en.wikipedia.org/wiki/Natural_neighbor_interpolation) based on the Voronoi tessellation. For an efficient implementation of the DTFE method in C++ see the [code by Marius Cautun](https://github.com/MariusCautun/DTFE).
+[natural neighbor interpolation](https://en.wikipedia.org/wiki/Natural_neighbor_interpolation) based on the Voronoi tessellation. For an efficient implementation of the DTFE method in C++, see the [code by Marius Cautun](https://github.com/MariusCautun/DTFE).
 
 Consider the pointset $\mathcal{P}$ consisting of $N$ labelled points $p_i \in \mathbb{R}^d$, the velocity set $\mathcal{V}$ consisting of the $N$ velocities $v_i \in \mathbb{R}^d$, and the mass set $\mathcal{M}$ consisting of the masses $m_i \in \mathbb{R}$ corresponding to the points in $\mathcal{P}$, with $i=1,\dots,N$. Using the points and masses, we reconstruct the density field $\rho:\mathbb{R}^d \to \mathbb{R}$. Using both the points and the velocities, we construct the velocity field $v:\mathbb{R}^d\to \mathbb{R}$.
 
 ### Density reconstruction
-Given the pointset $\mathcal{P}$, consider the Delaunay tesselation $\mathcal{D}$ consisting of $N_T$ labelled simplices $D_i$, with $i=1,\dots, N_T$. In two dimensions, a simplex is a triangle spanning three points in $\mathcal{P}$. In three dimensions, a simplex is a tetrahedron spanning four points in $\mathcal{P}$.
+Given the pointset $\mathcal{P}$, consider the Delaunay tessellation $\mathcal{D}$ consisting of $N_T$ labelled simplices $D_i$, with $i=1,\dots, N_T$. In two dimensions, a simplex is a triangle spanning three points in $\mathcal{P}$. In three dimensions, a simplex is a tetrahedron spanning four points in $\mathcal{P}$.
 
 ![A two-dimensional Delaunay tessellation with the circumscribed circles. The Delaunay tessellation has the property that no vertex is in the circumscribed circle of a triangle.](assets/figures/Delaunay.png)
  
@@ -56,14 +56,14 @@ p_{l_d}-p_{l_0}\\
 \end{vmatrix}\,.
 ```
 
-The integral over density -- assuming the density vanishes outside the convex hull of the Delaunay tesselation -- takes the form
+The integral over density -- assuming the density vanishes outside the convex hull of the Delaunay tessellation -- takes the form
 
 ```math
-\begin{align}
+\begin{align*}
 \int \rho(x) \mathrm{d}x 
 &= \sum_{i=1}^{N_T} \int_{D_i} \rho(x)\mathrm{d}x\\
 &= \frac{1}{d+1} \sum_{i=1}^{N_T} V(D_i) \sum_{j \in D_i} \rho_j\,,
-\end{align}
+\end{align*}
 ```
 
 where the first sum runs over the simplices of the tessellation and the second sum runs over the vertices of a given simplex. Note that $\rho_i$ enters the sum for each simplex for which it is a vertex. These simplices form the star $W_i$ of the point $p_i$
@@ -121,11 +121,11 @@ Now, given a point $x \in \mathbb{R}^d$, we can reconstruct the velocity field a
 Note that the gradient $\nabla v$ is a piecewise constant function. Given the gradient $\nabla v$ for each simplex, it is natural to evaluate velocity deformation modes. In three dimensions, we evaluate the divergence $\theta$, the shear $\sigma_{ij}$ and the vorticity $\omega = \epsilon^{ijk} \omega_{ij}$ defined by
 
 ```math
-\begin{align}
+\begin{align*}
 \theta &= \nabla \cdot v = \frac{\partial v_x}{\partial x} + \frac{\partial v_y}{\partial y} + \frac{\partial v_z}{\partial z},\\
 \sigma_{ij} &= \frac{1}{2} \left[\frac{\partial v_i}{\partial x_j} + \frac{\partial v_j}{\partial x_i}\right] - \frac{1}{3} (\nabla \cdot v) \delta_{ij},\\
 \omega_{ij} &=\frac{1}{2} \left[\frac{\partial v_i}{\partial x_j} - \frac{\partial v_j}{\partial x_i}\right]
-\end{align}
+\end{align*}
 ```
 
 with the Kronecker delta $\delta_{ij}$ and the Levi-Civita symbol $\epsilon^{ijk}$.
@@ -134,7 +134,7 @@ For a point $x \in \mathbb{R}^d$, the reconstruction amounts to looking up the c
 
 ## The Phase-Space Delaunay Tessellation Field Estimator
 
-The Phase-Space Delaunay Tessellation Field Estimator (PS-DTFE) extends the DTFE method to phase-space, inspired by work by [...]. For more details we refer to the publication [Phase-Space Delaunay Tesselation Field Estimator](https://academic.oup.com/mnras/article/536/1/807/7915986). 
+The Phase-Space Delaunay Tessellation Field Estimator (PS-DTFE) extends the DTFE method to phase-space. For more details, we refer to the publication [Phase-Space Delaunay tessellation Field Estimator](https://academic.oup.com/mnras/article/536/1/807/7915986). 
 
 The evolution of our universe can be described in Lagrangian fluid dynamics in terms of the Lagrangian map $x_t(q) = q + s_t(q)$ mapping a point in the space of initial conditions (*Lagrangian space*) to a point in the current universe (*Eulerian space*). The displacement field $s_t(q)$ captures the displacement of a particle starting at $q$ in time $t$. Large-scale structure formation can be visualized with the folding of a three-dimensional dark matter sheet in six-dimensional phase-space. The projection of the dark matter sheet into Eulerian space leads to the formation of multistream regions bounded by caustics in which the density spikes.
 
@@ -148,4 +148,4 @@ Given the Lagrangian map $x_t$, the density in a point $x'$ in Eulerian space is
 
 where the sum ranges over all points in Lagrangian space that stream into $x'$ at the given time $t$. The caustics form at the boundaries of the multistream regions where the determinant of the deformation tensor vanishes, i.e. $\det(\nabla x_t)=0$.
 
-The DTFE method successfully estimates the density in the single-stream regions. However, in multistream regions, the Delaunay tessellation may identify particles as neighbours in Eulerian space that where far separated in Lagrangian space (see the central panel of the figure above). To circumvent this problem, we evaluate the Delaunay tessellation of the particle coordinates in the early (high-redshift) configuration (that is, in Lagrangian space), where the universe was still in a single-stream state. We then evolve this tessellation with the displacement field and use the evolved tessellation to estimate the density and velocity fields in Eulerian space (see the right panel of the figure above). To this end, we identify the simplices (tetrahedra in three dimensions) in which a point $x'$ resides. This is efficiently implemented using a Bounding Volume Hierarchy (BVH), a tree structure on a set of tetrahedra spanning the dark matter sheet. Having identified the incoming simplices, the reconstruction of the density and velocities is analogous to the DTFE method, with the estimates in the individual streams summed to according to the discussion above.
+The DTFE method successfully estimates the density in the single-stream regions. However, in multistream regions, the Delaunay tessellation may identify particles as neighbours in Eulerian space that where far separated in Lagrangian space (see the central panel of the figure above). To circumvent this problem, we evaluate the Delaunay tessellation of the particle coordinates in the early configuration (that is, in Lagrangian space), where the universe was still in a single-stream state. We then evolve this tessellation with the displacement field and use the evolved tessellation to estimate the density and velocity fields in Eulerian space (see the right panel of the figure above). To this end, we identify the simplices (tetrahedra in three dimensions) in which a point $x'$ resides. This is efficiently implemented using a Bounding Volume Hierarchy (BVH), a tree structure on a set of tetrahedra spanning the dark matter sheet. Having identified the incoming simplices, the reconstruction of the density and velocities is analogous to the DTFE method, with the estimates in the individual streams summed to according to the discussion above.
