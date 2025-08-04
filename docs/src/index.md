@@ -29,17 +29,17 @@ Given the initial (`coords_q`) and final (`coords_x`) particle positions and vel
 ```julia
 using PhaseSpaceDTFE
 
-m = 1. # particle mass
-depth = 5
+m       = 1.  # particle mass
+depth   = 5
 sim_box = SimBox(L, Ni)
 
 ps_dtfe_sb = ps_dtfe_subbox(coords_q, coords_x, vels, m, depth, sim_box)
 
-Range = 0.:0.2:100.
-coords_arr  = [[L/2., y, z] for y in Range, z in Range]
-density_field = density_subbox(coords_arr, ps_dtfe_sb)
-numberOfStreams_field = numberOfStreams_subbox(coords_arr, ps_dtfe_sb)
-velocitySum_field = velocitySum_subbox(coords_arr, ps_dtfe_sb)
+Range      = 0.:0.2:100.
+coords_arr = [[L/2., y, z] for y in Range, z in Range]
+density_field  = density_subbox(coords_arr, ps_dtfe_sb)
+nstreams_field = numberOfStreams_subbox(coords_arr, ps_dtfe_sb)
+velocity_field = velocitySum_subbox(coords_arr, ps_dtfe_sb)
 ```
 
 Please have a look at the Tutorial page for more details.
