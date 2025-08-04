@@ -14,13 +14,13 @@ The PhaseSpaceDTFE package can be installed with the Julia package manager.
 From the Julia REPL, type `]` to enter the Pkg REPL mode and run:
 
 ```julia
-pkg> add https://github.com/jfeldbrugge/PhaseSpaceDTFE.jl
+pkg> add PhaseSpaceDTFE
 ```
 
 Or, equivalently, via the `Pkg` API:
 
 ```julia
-julia> import Pkg; Pkg.add("https://github.com/jfeldbrugge/PhaseSpaceDTFE.jl")
+julia> import Pkg; Pkg.add("PhaseSpaceDTFE.jl")
 ```
 
 ## Usage
