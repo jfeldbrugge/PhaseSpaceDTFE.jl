@@ -3,7 +3,7 @@ CurrentModule = PhaseSpaceDTFE
 ```
 
 # Citations
-This code accompanies the publication [Phase-Space Delaunay Tessellation Field Estimator, Job Feldbrugge, 2025](https://academic.oup.com/mnras/article/536/1/807/7915986). When using the code in your work, please cite both the paper and the code:
+This code accompanies the publication [Phase-Space Delaunay Tessellation Field Estimator, Job Feldbrugge, 2024](https://academic.oup.com/mnras/article/536/1/807/7915986). When using the code in your work, please cite both the paper and the code:
 ```
 @article{Feldbrugge2024,
     author = {Feldbrugge, Job},
