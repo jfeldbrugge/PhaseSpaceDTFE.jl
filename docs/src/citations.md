@@ -37,5 +37,6 @@ Please also consider citing the following papers that have been foundational to 
   * The PhD thesis of W.E. Schaap, 2007, University of Groningen, Netherlands
 * Key developments on phase-space methods in large-scale structure:
   * [The multi-stream flows and the dynamics of the cosmic web, by S.F. Shandarin, 2011](https://iopscience.iop.org/article/10.1088/1475-7516/2011/05/015/pdf)
+  * [Cosmic web, multistream flows, and tessellations, by S.F. Shandarin, S. Habib, K. Heitmann, 2012](https://journals.aps.org/prd/abstract/10.1103/PhysRevD.85.083005)
   * [Tracing the Dark Matter Sheet in Phase Space, by T. Abel, O. Hahn, R. Kaehler, 2012](https://academic.oup.com/mnras/article/427/1/61/1032914?login=false)
   * [The properties of cosmic velocity fields, by O. Hahn, R.E. Angulo, T. Abel, 2015](https://academic.oup.com/mnras/article/454/4/3920/995772)
