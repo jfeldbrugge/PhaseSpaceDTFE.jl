@@ -1,5 +1,5 @@
 """
-    The density and velocity fields of an N-body simulation are estimated with the Phase-Space Delaunay Tessellation Field Estimator implemented in Julia. This code accompanies the publication [Phase-Space Delaunay Tesselation Field Estimator](https://academic.oup.com/mnras/article/536/1/807/7915986).
+    The density and velocity fields of an N-body simulation are estimated with the Phase-Space Delaunay Tessellation Field Estimator implemented in Julia. This code accompanies the publication "Phase-Space Delaunay Tesselation Field Estimator", by Job Feldbrugge, 2024. (https://academic.oup.com/mnras/article/536/1/807/7915986).
 """
 module PhaseSpaceDTFE
 
