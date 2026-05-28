@@ -108,6 +108,49 @@ In multistream regions, the `velocity()`-function returns the velocities of the 
 velocity_field = [velocitySum([L/2., y, z], ps_dtfe) for y in Range, z in Range]
 ```
 
+For large simulations when aiming at evaluating the PS-DTFE field in a slice, it can be beneficial to first select the $N$-body particles lying near the slice (in a slab of thickness $\epsilon$) before constructing the estimator.
+
+```@example tutorial1
+using Base.Threads
+
+function density_slice(coords_q, coords_x, p, dim, ϵ, m, depth, box, range)
+	println("Filter field")
+	filter = p[dim] - ϵ .< coords_x[:, dim] .< p[dim] + ϵ
+
+	coords_q_reduced = coords_q[filter, :]
+	coords_x_reduced = coords_x[filter, :]
+
+	println("Generate estimator")
+	ps_dtfe = PS_DTFE_periodic(coords_q_reduced, coords_x_reduced, m, depth, box)
+
+	dfield = zeros((length(range), length(range)))
+	nfield = zeros((length(range), length(range)))
+
+	println("Evalaute density field")
+	@showprogress Threads.@threads for I in CartesianIndices(dfield)
+    	i, j = Tuple(I)
+		@inbounds x, y = range[i], range[j]
+
+		P = [x, y]
+		insert!(P, dim, p[dim])
+		@inbounds dfield[i, j] = PhaseSpaceDTFE.density(P, ps_dtfe)
+		@inbounds nfield[i, j] = PhaseSpaceDTFE.numberOfStreams(P, ps_dtfe)
+	end
+
+	return dfield, nfield
+end
+
+let dim = 1, ϵ = 2., depth = 7
+    global dfield, nfield = density_slice(coords_q, coords_x, [L / 2., L / 2., L / 2.], dim, ϵ, m, depth, sim_box, Range)
+end 
+
+heatmap(Range, Range, log10.(dfield), aspect_ratio=:equal, xlims=(0, L), ylims=(0, L), c=:grays, xlabel="[Mpc]", ylabel="[Mpc]")
+```
+
+```@example tutorial1
+heatmap(Range, Range, nfield, aspect_ratio=:equal, xlims=(0, L), ylims=(0, L), clim=(1, 7), xlabel="[Mpc]", ylabel="[Mpc]")
+```
+
 ## The Phase-Space Delaunay Tessellation Field Estimator — subbox implementation
 
 We now demonstrate the use of the PS-DTFE method for simulations with more than 128^3 particles.
