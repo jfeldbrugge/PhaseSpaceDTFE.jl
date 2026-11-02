@@ -97,13 +97,13 @@ Now, given a point $x \in \mathbb{R}^d$, we can reconstruct the density field at
 The velocity field of the dataset is analogously reconstructed with a linear interpolation in the Delaunay cells. Given a simplex $D$ spanned by the vertices $p_{l_0}, \dots, p_{l_d}$ and the associated velocities $v_{l_0},\dots,v_{l_d}$, we write the velocity field in the simplex $D$ as
 
 ```math
-v(x) = v_{l_0} + \nabla v (x - p_{l_0})
+v_k(x) = v_{l_0,k} + \sum_{a=1}^d \frac{\partial v_k}{\partial x_a} (x - p_{l_0})_a
 ```
 
-with the velocity gradient $\nabla v$ associated to the simplex determined by the linear consistency relations $v(p_{l_i}) = v_{l_i}$ for $i=1,\dots,d$. In matrix notation,
+with the velocity gradient $\partial v_k / \partial x_a$ associated to the simplex determined by the linear consistency relations $v(p_{l_i}) = v_{l_i}$ for $i=1,\dots,d$. In matrix notation, with the rows of the first matrix the edges of the simplex and the columns of the result labelled by the velocity components $k$,
 
 ```math
-\nabla v = 
+\left(\frac{\partial v_k}{\partial x_a}\right)_{ak} =
 \begin{pmatrix}
 p_{l_1}-p_{l_0}\\
 \vdots\\
@@ -115,6 +115,14 @@ v_1-v_0\\
 v_d-v_0\\
 \end{pmatrix}\,.
 ```
+
+Equivalently, the density and the velocity are interpolated with the barycentric coordinates $\lambda = E^{-1}(x - p_{l_0})$ of the point $x$, with $E$ the matrix with the edges $p_{l_i} - p_{l_0}$ as columns:
+
+```math
+v(x) = v_{l_0} + \sum_{i=1}^d \lambda_i (v_{l_i} - v_{l_0})\,.
+```
+
+The point lies in the simplex when $\lambda_i \geq 0$ and $\sum_i \lambda_i \leq 1$.
 
 Now, given a point $x \in \mathbb{R}^d$, we can reconstruct the velocity field at this point by finding the simplex in which the point lies and evaluating the corresponding linear interpolation in the simplex.
 
@@ -148,4 +156,36 @@ Given the Lagrangian map $x_t$, the density in a point $x'$ in Eulerian space is
 
 where the sum ranges over all points in Lagrangian space that stream into $x'$ at the given time $t$. The caustics form at the boundaries of the multistream regions where the determinant of the deformation tensor vanishes, i.e. $\det(\nabla x_t)=0$.
 
-The DTFE method successfully estimates the density in the single-stream regions. However, in multistream regions, the Delaunay tessellation may identify particles as neighbours in Eulerian space that where far separated in Lagrangian space (see the central panel of the figure above). To circumvent this problem, we evaluate the Delaunay tessellation of the particle coordinates in the early configuration (that is, in Lagrangian space), where the universe was still in a single-stream state. We then evolve this tessellation with the displacement field and use the evolved tessellation to estimate the density and velocity fields in Eulerian space (see the right panel of the figure above). To this end, we identify the simplices (tetrahedra in three dimensions) in which a point $x'$ resides. This is efficiently implemented using a Bounding Volume Hierarchy (BVH), a tree structure on a set of tetrahedra spanning the dark matter sheet. Having identified the incoming simplices, the reconstruction of the density and velocities is analogous to the DTFE method, with the estimates in the individual streams summed to according to the discussion above.
+The DTFE method successfully estimates the density in the single-stream regions. However, in multistream regions, the Delaunay tessellation may identify particles as neighbours in Eulerian space that where far separated in Lagrangian space (see the central panel of the figure above). To circumvent this problem, we evaluate the Delaunay tessellation of the particle coordinates in the early configuration (that is, in Lagrangian space), where the universe was still in a single-stream state. We then evolve this tessellation with the displacement field and use the evolved tessellation to estimate the density and velocity fields in Eulerian space (see the right panel of the figure above). To this end, we identify the simplices (tetrahedra in three dimensions) in which a point $x'$ resides. Having identified the incoming simplices, the reconstruction of the density and velocities is analogous to the DTFE method, with the estimates in the individual streams summed according to the discussion above.
+
+## Implementation
+
+### Lagrangian tessellation
+The package offers two tessellations of the initial particle positions:
+
+* **The periodic Delaunay tessellation** (`tessellation = :delaunay`). The initial positions are tessellated with [TetGen](https://github.com/JuliaGeometry/TetGen.jl) together with their periodic images within a frame around the box, and one copy of every periodic tetrahedron is kept. The kept tetrahedra are checked to tile the box exactly. For degenerate configurations, such as an exact lattice where the Delaunay tessellation is not unique, the connectivity is computed from positions displaced by a small fixed pseudo-random jitter, the same for every periodic image of a particle, so that all images are split consistently.
+* **The Kuhn split of the particle lattice** (`tessellation = :kuhn`). For lattice initial conditions, every cube of the lattice is split into the six Kuhn (Freudenthal) tetrahedra that share the cube's main diagonal. Every particle is a vertex of the same star of 24 tetrahedra, and the estimator is exact for affine Lagrangian maps.
+
+### Vertex densities
+The density at a particle is estimated from the Eulerian volume $V(W_i)$ of its star $W_i$ (the tetrahedra of which it is a vertex). In three dimensions, the classical DTFE estimate (`vertex_density = :mass`) is
+
+```math
+\rho_i = \frac{4 m_i}{V(W_i)}\,.
+```
+
+Alternatively, the Lagrangian estimate (`vertex_density = :lagrangian`; Feldbrugge 2024, eq. 26)
+
+```math
+\rho_i = \bar\rho\, \frac{V_L(W_i)}{V(W_i)}\,,
+```
+
+with the Lagrangian volume $V_L(W_i)$ of the star and the mean density $\bar\rho = M/L^3$, assumes a uniform initial density. It is then exact, also when the stars differ in size (glass initial conditions, the Delaunay tessellation) or the masses vary with the resolution of the initial conditions (zoom simulations). Both estimates conserve the total mass $M$, and they coincide for the Kuhn split of a lattice with equal particle masses.
+
+### Periodic boundaries
+Every tetrahedron is unwrapped across the box on its own: its edges are taken at the periodic image nearest to its first corner. Particles may thus travel around the box any number of times; only the edges of the tetrahedra must stay shorter than $L/2$. Every tetrahedron is stored at the image of its first corner in the box, together with the periodic copies that overlap the box.
+
+### Point location
+The tetrahedra are registered in a uniform cell index of $G^3$ cells over the box, by their bounding boxes. For every tetrahedron, the inverse of its edge matrix is precomputed, so that the barycentric coordinates of a point follow from a single matrix-vector product. A point query tests the tetrahedra of the cell containing the point and sums the interpolated values over the tetrahedra containing it (the streams).
+
+### Grids
+Fields on regular grids are computed by rasterising the tetrahedra. Each plane of the grid cuts a tetrahedron in a triangle or a quadrilateral, which is traversed row by row; only the grid points inside the cross-section are evaluated. The planes are split over threads. `ps_dtfe_grid` rasterises the tetrahedra one at a time directly from the particles, without storing the estimator.

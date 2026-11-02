@@ -1,14 +1,19 @@
 """
-    The density and velocity fields of an N-body simulation are estimated with the Phase-Space Delaunay Tessellation Field Estimator implemented in Julia. This code accompanies the publication "Phase-Space Delaunay Tesselation Field Estimator", by Job Feldbrugge, 2024. (https://academic.oup.com/mnras/article/536/1/807/7915986).
+    PhaseSpaceDTFE
+
+The density, velocity and number-of-streams fields of a three-dimensional N-body simulation, estimated with the Phase-Space Delaunay Tessellation Field Estimator (Feldbrugge 2024, MNRAS 536, 807, https://academic.oup.com/mnras/article/536/1/807/7915986) on a tessellation of the initial (Lagrangian) particle positions: the periodic Delaunay tessellation, or the Kuhn split of the particle lattice.
 """
 module PhaseSpaceDTFE
 
-    using LinearAlgebra, StaticArrays, TetGen, Serialization, ProgressMeter
+    using LinearAlgebra, Random, StaticArrays, TetGen
 
-    include("bvh.jl")
-    include("ps_dtfe.jl")
-    include("ps_dtfe_subbox.jl")
+    include("lattice.jl")
+    include("delaunay.jl")
+    include("index.jl")
+    include("estimator.jl")
+    include("raster.jl")
 
-    export SimBox, PS_DTFE, PS_DTFE_periodic, density, numberOfStreams, velocity, velocitySum, DTFE_periodic
-    export PS_DTFE_subbox, ps_dtfe_subbox, density_subbox, numberOfStreams_subbox, velocity_subbox, velocitySum_subbox
+    export SimBox, PS_DTFE, PS_DTFE_periodic, PS_DTFE_nonperiodic
+    export density, numberOfStreams, velocity, velocitySum, inSimplices
+    export density_grid, numberOfStreams_grid, ps_dtfe_grid
 end

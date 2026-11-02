@@ -1,5 +1,3 @@
-ENV["JULIA_PROGRESS"] = "false"
-
 using PhaseSpaceDTFE
 using Documenter
 
@@ -18,6 +16,7 @@ makedocs(;
         "Home" => "index.md",
         "Theory" => "theory.md",
         "Tutorial" => "tutorial.md",
+        "Migrating from v1" => "migration.md",
         "Citations" => "citations.md",
         "Reference" => "reference.md",
     ],

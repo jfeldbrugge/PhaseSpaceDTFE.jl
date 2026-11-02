@@ -1,21 +1,19 @@
 name = "PhaseSpaceDTFE"
 uuid = "4bbf42c9-fe82-44eb-a825-ab877c23bdb8"
 authors = ["Job Feldbrugge <14946916+jfeldbrugge@users.noreply.github.com> and contributors"]
-version = "1.0.1"
+version = "2.0.0"
 
 [deps]
 LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
-ProgressMeter = "92933f4c-e287-5a05-a399-4b506db050ca"
-Serialization = "9e88b42a-f829-5b0c-bbe9-9e923198166b"
+Random = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
 StaticArrays = "90137ffa-7385-5640-81b9-e52037218182"
 TetGen = "c5d3f3f7-f850-59f6-8a2e-ffc6dc1317ea"
 
 [compat]
 LinearAlgebra = "1.11.0"
-ProgressMeter = "1.10.4"
-Serialization = "1.11.0"
+Random = "1.11.0"
 StaticArrays = "1.9.14"
-TetGen = "2.0.0"
+TetGen = "2, 3"
 julia = "1.11"
 
 [extras]

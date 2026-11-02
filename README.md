@@ -27,23 +27,30 @@ julia> using Pkg; Pkg.add("PhaseSpaceDTFE")
 ```
 
 ## Usage
-Given the initial (`coords_q`) and final (`coords_x`) particle positions and velocities `vels` of an $N$-body simulation, we estimate the density, velocity and number of streams fields as follows:
+Given the initial (`coords_q`) and final (`coords_x`) particle positions and the velocities `vels` of an $N$-body simulation in a periodic box of size `L` with `Ni`³ particles, we estimate the density, velocity and number-of-streams fields as follows:
 
 ```julia
 using PhaseSpaceDTFE
 
-m       = 1.  # particle mass
-depth   = 5
+m       = 1.  # particle mass, or a vector with the mass of every particle
 sim_box = SimBox(L, Ni)
 
-ps_dtfe_sb = ps_dtfe_subbox(coords_q, coords_x, vels, m, depth, sim_box)
+ps_dtfe = PS_DTFE(coords_q, coords_x, vels, m, sim_box)
 
-Range      = 0.:0.2:100.
-coords_arr = [[L/2., y, z] for y in Range, z in Range]
-density_field  = density_subbox(coords_arr, ps_dtfe_sb)
-nstreams_field = numberOfStreams_subbox(coords_arr, ps_dtfe_sb)
-velocity_field = velocitySum_subbox(coords_arr, ps_dtfe_sb)
+density([x, y, z], ps_dtfe)            # density at a point, summed over the streams
+numberOfStreams([x, y, z], ps_dtfe)
+velocity([x, y, z], ps_dtfe)           # one row per stream
+velocitySum([x, y, z], ps_dtfe)        # stream-density weighted mean velocity
+
+xs = range(0, L, length = 257)
+density_field  = density_grid(xs, xs, xs, ps_dtfe)          # array indexed [ix, iy, iz]
+nstreams_field = numberOfStreams_grid(xs, xs, xs, ps_dtfe)
+density_field, nstreams_field = ps_dtfe_grid(coords_q, coords_x, m, sim_box, xs, xs, xs)   # without storing an estimator
 ```
+
+Options include the tessellation of the initial positions (`tessellation = :delaunay` (default) or `:kuhn` for lattice initial conditions), the vertex densities (`vertex_density = :mass` (default) or `:lagrangian`), and estimators without periodic boundaries (`periodicity = :nonperiodic`). Start Julia with several threads (`julia -t auto`) to compute grids in parallel.
+
+Version 2 is a rewrite of the estimator: it is about ten times faster to construct, point queries are about 60 times faster, and fields on grids are computed by rasterisation. The sub-box estimators and `DTFE_periodic` of version 1 have been removed; see the migration page of the documentation.
 
 Please have a look at the Documentation for more details.
 
