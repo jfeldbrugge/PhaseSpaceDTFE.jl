@@ -18,7 +18,15 @@ end
 
 The periodic image of the displacement `s` in [-L/2, L/2); `s` itself if it is already in that interval.
 """
-@inline unwrap_s(s, L) = s - L * floor(s / L + 0.5)
+@inline unwrap_s(s, L) = mod(s + L / 2, L) - L / 2     # the form in use since the sub-box commit (estimator_subbox.jl overwrote the earlier one)
+
+"""
+    unwrap_box(s, L)
+
+The periodic image in [-L/2, L/2) of the separation `s` ∈ [-L, L] of two points in [0, L]: `unwrap_s` for this
+interval, with two comparisons instead of a division and a rounding. Used in point queries and grids.
+"""
+@inline unwrap_box(s, L) = ifelse(s >= L / 2, s - L, ifelse(s < -L / 2, s + L, s))
 
 """
     lattice_sites(coords_q, sim_box)
@@ -67,10 +75,11 @@ Kuhn (Freudenthal) triangulation of the periodic Ni³ Lagrangian lattice: every 
 function lattice_tetrahedra(site)
     N = size(site, 1)
     tets = Matrix{Int32}(undef, 6N^3, 4)
-    t = 0
-    @inbounds for k in 1:N, j in 1:N, i in 1:N, path in KUHN_PATHS
-        t += 1
-        tets[t, 1], tets[t, 2], tets[t, 3], tets[t, 4] = kuhn_tetrahedron(site, i, j, k, path)
+    Threads.@threads for k in 1:N
+        @inbounds for j in 1:N, i in 1:N, (p, path) in enumerate(KUHN_PATHS)
+            t = 6 * ((i - 1) + (j - 1) * N + (k - 1) * N^2) + p
+            tets[t, 1], tets[t, 2], tets[t, 3], tets[t, 4] = kuhn_tetrahedron(site, i, j, k, path)
+        end
     end
     return tets
 end
@@ -102,6 +111,109 @@ end
 "First corner of the tetrahedron at the periodic image in [0, L)³."
 @inline first_corner(x, v0, L) = @inbounds SVector(x[v0, 1] - fld(x[v0, 1], L) * L, x[v0, 2] - fld(x[v0, 2], L) * L,
                                                    x[v0, 3] - fld(x[v0, 3], L) * L)
+
+"""
+    frame(xt, v, L)
+    frame(xt, corners, t, L)
+
+First corner, at its periodic image in [0, L)³, and edge matrix of the tetrahedron with corners at the columns
+v = (v0, v1, v2, v3) of the (3, N) positions `xt`, or at the columns `corners[:, t]`; equal to `first_corner` and
+`tet_edges` of the (N, 3) positions.
+"""
+@inline function frame(xt, (v0, v1, v2, v3), L)
+    @inbounds begin
+        o = SVector(xt[1, v0] - fld(xt[1, v0], L) * L, xt[2, v0] - fld(xt[2, v0], L) * L, xt[3, v0] - fld(xt[3, v0], L) * L)
+        E = SMatrix{3, 3, Float64}(
+            unwrap_s(xt[1, v1] - xt[1, v0], L), unwrap_s(xt[2, v1] - xt[2, v0], L), unwrap_s(xt[3, v1] - xt[3, v0], L),
+            unwrap_s(xt[1, v2] - xt[1, v0], L), unwrap_s(xt[2, v2] - xt[2, v0], L), unwrap_s(xt[3, v2] - xt[3, v0], L),
+            unwrap_s(xt[1, v3] - xt[1, v0], L), unwrap_s(xt[2, v3] - xt[2, v0], L), unwrap_s(xt[3, v3] - xt[3, v0], L))
+    end
+    return o, E
+end
+@inline frame(xt, corners::AbstractMatrix, t, L) = @inbounds frame(xt, (corners[1, t], corners[2, t], corners[3, t], corners[4, t]), L)
+
+"""
+    tet_frame(xt, corners, t, L, images)
+
+First corner and edge matrix of tetrahedron t as the estimator uses them: `frame` (first corner in [0, L)³, edges
+unwrapped) for `images = :all`, otherwise the first corner where it is stored and the plain differences of the corners.
+"""
+@inline function tet_frame(xt, corners::AbstractMatrix, t, L, images::Symbol)
+    images == :all && return frame(xt, corners, t, L)
+    @inbounds begin
+        v0, v1, v2, v3 = corners[1, t], corners[2, t], corners[3, t], corners[4, t]
+        o = SVector(xt[1, v0], xt[2, v0], xt[3, v0])
+        E = SMatrix{3, 3, Float64}(xt[1, v1] - xt[1, v0], xt[2, v1] - xt[2, v0], xt[3, v1] - xt[3, v0],
+                                   xt[1, v2] - xt[1, v0], xt[2, v2] - xt[2, v0], xt[3, v2] - xt[3, v0],
+                                   xt[1, v3] - xt[1, v0], xt[2, v3] - xt[2, v0], xt[3, v3] - xt[3, v0])
+    end
+    return o, E
+end
+
+"""
+    edge_inverse(E)
+
+Determinant and inverse of the edge matrix E (the rows of the inverse are the cross products of the edges divided by
+the determinant). Written out without fused multiply-adds, so that every caller obtains the same bits and point
+queries, grids and compact estimators agree exactly.
+"""
+@inline function edge_inverse(E)
+    @inbounds begin
+        a1, a2, a3, b1, b2, b3, c1, c2, c3 = E[1], E[2], E[3], E[4], E[5], E[6], E[7], E[8], E[9]
+        bc = (b2 * c3 - b3 * c2, b3 * c1 - b1 * c3, b1 * c2 - b2 * c1)
+        ca = (c2 * a3 - c3 * a2, c3 * a1 - c1 * a3, c1 * a2 - c2 * a1)
+        ab = (a2 * b3 - a3 * b2, a3 * b1 - a1 * b3, a1 * b2 - a2 * b1)
+        D = a1 * bc[1] + a2 * bc[2] + a3 * bc[3]
+    end
+    return D, SMatrix{3, 3, Float64}(bc[1] / D, ca[1] / D, ab[1] / D, bc[2] / D, ca[2] / D, ab[2] / D, bc[3] / D, ca[3] / D, ab[3] / D)
+end
+
+"Barycentric coordinates B d, without fused multiply-adds (see `edge_inverse`)."
+@inline barycentric_coordinates(B, d1, d2, d3) =
+    @inbounds (B[1] * d1 + B[4] * d2 + B[7] * d3, B[2] * d1 + B[5] * d2 + B[8] * d3, B[3] * d1 + B[6] * d2 + B[9] * d3)
+
+"Spread the lowest 10 bits of v so that two zero bits follow each bit."
+@inline function spread3(v::UInt32)
+    v = (v | (v << 16)) & 0x030000ff
+    v = (v | (v << 8)) & 0x0300f00f
+    v = (v | (v << 4)) & 0x030c30c3
+    return (v | (v << 2)) & 0x09249249
+end
+
+"""
+    morton_order(xt, tets, L)
+
+The tetrahedra `tets` (a (T, 4) matrix of particle rows) as a (4, T) matrix, reordered along the Morton (Z-order)
+curve of their Eulerian centroids, so that tetrahedra that are close in space are close in memory. The order is a
+counting sort on 2^b cells per side, with about 50 tetrahedra per cell; within a cell the input order is kept.
+"""
+function morton_order(xt, tets, L)
+    T = size(tets, 1)
+    b = clamp(floor(Int, log2(cbrt(T / 8))), 1, 10)
+    n = 1 << b
+    key = Vector{UInt32}(undef, T)
+    Threads.@threads for t in 1:T
+        @inbounds begin
+            o, E = frame(xt, (tets[t, 1], tets[t, 2], tets[t, 3], tets[t, 4]), L)
+            c = o + (E[:, 1] + E[:, 2] + E[:, 3]) / 4
+            q = map(y -> UInt32(clamp(floor(Int, mod(y, L) / L * n), 0, n - 1)), c)
+            key[t] = spread3(q[1]) | spread3(q[2]) << 1 | spread3(q[3]) << 2
+        end
+    end
+    next = zeros(Int, n^3 + 1)
+    for k in key
+        @inbounds next[k + 2] += 1
+    end
+    next[1] = 1
+    cumsum!(next, next)
+    corners = Matrix{Int32}(undef, 4, T)
+    @inbounds for t in 1:T
+        r = next[key[t] + 1]
+        next[key[t] + 1] += 1
+        corners[1, r], corners[2, r], corners[3, r], corners[4, r] = tets[t, 1], tets[t, 2], tets[t, 3], tets[t, 4]
+    end
+    return corners
+end
 
 """
     lattice_density(x, site, m, L)

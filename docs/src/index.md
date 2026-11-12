@@ -44,10 +44,14 @@ velocitySum([x, y, z], ps_dtfe)        # stream-density weighted mean velocity
 xs = range(0, L, length = 257)
 density_field  = density_grid(xs, xs, xs, ps_dtfe)          # array indexed [ix, iy, iz]
 nstreams_field = numberOfStreams_grid(xs, xs, xs, ps_dtfe)
-density_field, nstreams_field = ps_dtfe_grid(coords_q, coords_x, m, sim_box, xs, xs, xs)   # without storing an estimator
+density_field = density_grid(L/2:L/2, xs, xs, ps_dtfe)[1, :, :]   # a slice: one point along one axis
+G = velocity_grid(xs, xs, xs, ps_dtfe; deformation = true)        # velocity, divergence, shear, vorticity of every stream
+
+# large simulations: one sub-box estimator in memory at a time
+density_field = density_grid_sb(xs, xs, xs, coords_q, coords_x, m, sim_box; N_sub = 4, parallel = 2)
 ```
 
-Start Julia with several threads (`julia -t auto`) to compute grids in parallel. Please have a look at the [Tutorial](tutorial.md) for more details.
+Start Julia with several threads (`julia -t auto`) to tessellate, rasterise and build sub-boxes in parallel. Please have a look at the [Tutorial](tutorial.md) for more details.
 
 ## What is new in version 2
 
@@ -57,8 +61,11 @@ Version 2 is a rewrite of the estimator:
 * **Vertex densities.** Besides the classical DTFE estimate (`vertex_density = :mass`), the Lagrangian estimate (`vertex_density = :lagrangian`) is exact for a uniform initial density, also for irregular tessellations and zoom simulations with particles of different mass.
 * **Periodic boundaries.** Every tetrahedron is unwrapped across the box on its own, so particles may travel around the box any number of times.
 * **Non-periodic estimator.** `PS_DTFE(...; periodicity = :nonperiodic)` estimates the fields without periodic boundary conditions.
-* **Point location.** A uniform cell index with the precomputed inverse edge matrix of every tetrahedron replaces the bounding volume hierarchy. Point queries do not allocate.
-* **Grids.** `density_grid`, `numberOfStreams_grid` and `ps_dtfe_grid` evaluate the fields on regular grids by rasterising the tetrahedra. `ps_dtfe_grid` replaces the sub-box estimators of version 1 for simulations whose estimator does not fit in memory.
+* **Point location.** A uniform cell index replaces the bounding volume hierarchy: every tetrahedron is stored once, in Morton order, and listed in exactly the cells it intersects, with its inverse edge matrix precomputed (or recomputed at every query with `compact = true`). Point queries do not allocate.
+* **Grids.** `density_grid`, `numberOfStreams_grid` and `ps_dtfe_grid` evaluate the fields on regular grids by rasterising the tetrahedra, with its own spacing along every axis; a slice is a grid with one point along an axis. Grids equal point queries bit for bit.
+* **Velocities of the streams.** `velocity_grid` stores the velocity and the density of every stream at every grid point, and with `deformation = true` its divergence, shear and vorticity.
+* **Sub-boxes.** For simulations whose tessellation does not fit in memory, `density_grid_sb`, `numberOfStreams_grid_sb` and `velocity_grid_sb` build and rasterise the estimator of one sub-box at a time, or `parallel` at a time, from the particles or from the estimators that `PS_DTFE_subbox` saves.
+* **Parallel construction.** TetGen tessellates slabs of the box concurrently, and the lattice, the vertex densities, the geometry and the cell index are computed on all threads.
 
 On the 64³ test simulation (`test/data`), compared with version 1:
 

@@ -45,12 +45,16 @@ velocitySum([x, y, z], ps_dtfe)        # stream-density weighted mean velocity
 xs = range(0, L, length = 257)
 density_field  = density_grid(xs, xs, xs, ps_dtfe)          # array indexed [ix, iy, iz]
 nstreams_field = numberOfStreams_grid(xs, xs, xs, ps_dtfe)
-density_field, nstreams_field = ps_dtfe_grid(coords_q, coords_x, m, sim_box, xs, xs, xs)   # without storing an estimator
+density_field = density_grid(L/2:L/2, xs, xs, ps_dtfe)[1, :, :]   # a slice: one point along one axis
+G = velocity_grid(xs, xs, xs, ps_dtfe; deformation = true)        # velocity, divergence, shear, vorticity of every stream
+
+# large simulations: one sub-box estimator in memory at a time
+density_field = density_grid_sb(xs, xs, xs, coords_q, coords_x, m, sim_box; N_sub = 4, parallel = 2)
 ```
 
-Options include the tessellation of the initial positions (`tessellation = :delaunay` (default) or `:kuhn` for lattice initial conditions), the vertex densities (`vertex_density = :mass` (default) or `:lagrangian`), and estimators without periodic boundaries (`periodicity = :nonperiodic`). Start Julia with several threads (`julia -t auto`) to compute grids in parallel.
+Options include the tessellation of the initial positions (`tessellation = :delaunay` (default) or `:kuhn` for lattice initial conditions), the vertex densities (`vertex_density = :mass` (default) or `:lagrangian`), and estimators without periodic boundaries (`periodicity = :nonperiodic`). For simulations whose tessellation does not fit in memory, the sub-box routines (`density_grid_sb`, `numberOfStreams_grid_sb`, `velocity_grid_sb`) build and rasterise one sub-box estimator at a time. Start Julia with several threads (`julia -t auto`) to tessellate, rasterise and build sub-boxes in parallel.
 
-Version 2 is a rewrite of the estimator: it is about ten times faster to construct, point queries are about 60 times faster, and fields on grids are computed by rasterisation. The sub-box estimators and `DTFE_periodic` of version 1 have been removed; see the migration page of the documentation.
+Version 2 is a rewrite of the estimator: it is about ten times faster to construct, point queries are about 60 times faster, and fields on grids, including slices and the velocities of every stream, are computed by rasterisation. The constructors take no search-tree `depth` any more, `DTFE_periodic` has been removed, and the sub-box routines now evaluate grids; see the migration page of the documentation.
 
 Please have a look at the Documentation for more details.
 

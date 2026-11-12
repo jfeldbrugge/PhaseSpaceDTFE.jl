@@ -4,18 +4,16 @@ CurrentModule = PhaseSpaceDTFE
 
 # Migrating from version 1
 
-Version 2 keeps the point-query interface of version 1 (`SimBox`, `PS_DTFE_periodic`, `density`, `numberOfStreams`, `velocity`, `velocitySum`, `inSimplices`). The estimator itself is new, and some functions have been removed.
+Version 2 keeps the point-query interface of version 1 (`SimBox`, `PS_DTFE_periodic`, `density`, `numberOfStreams`, `velocity`, `velocitySum`, `inSimplices`). The estimator itself is new, and some functions have changed or been removed.
 
-## Unchanged calls
+## Changed calls
 
-The constructors of version 1 with the depth of the search tree are accepted; the depth is not used:
+The estimator no longer has a search tree, so the constructors take no `depth`: drop it from the calls of version 1.
 
 ```julia
-ps_dtfe = PS_DTFE_periodic(coords_q, coords_x, vels, m, depth, sim_box)
-ps_dtfe = PS_DTFE_periodic(coords_q, coords_x, m, depth, sim_box)
+ps_dtfe = PS_DTFE_periodic(coords_q, coords_x, vels, m, depth, sim_box)   # version 1
+ps_dtfe = PS_DTFE_periodic(coords_q, coords_x, vels, m, sim_box)          # version 2
 ```
-
-These are equal to `PS_DTFE_periodic(coords_q, coords_x, vels, m, sim_box)` and `PS_DTFE(coords_q, coords_x, vels, m, sim_box)`.
 
 ## Removed functions
 
@@ -23,12 +21,12 @@ These are equal to `PS_DTFE_periodic(coords_q, coords_x, vels, m, sim_box)` and 
 |---|---|
 | `DTFE_periodic(coords_x, vels, m, depth, sim_box)` | `PS_DTFE(coords_x, coords_x, vels, m, sim_box)` |
 | `DTFE_periodic(coords_x, m, depth, sim_box)` | `PS_DTFE(coords_x, coords_x, m, sim_box)` |
-| `ps_dtfe_subbox(coords_q, coords_x, [vels,] m, depth, sim_box)` | `PS_DTFE(coords_q, coords_x, [vels,] m, sim_box)` for simulations whose estimator fits in memory; `ps_dtfe_grid` otherwise |
-| `density_subbox(coords_arr, ps_dtfe_sb)` | `density.(coords_arr, Ref(ps_dtfe))`, or `density_grid(xs, ys, zs, ps_dtfe)` on a regular grid |
-| `numberOfStreams_subbox(coords_arr, ps_dtfe_sb)` | `numberOfStreams.(coords_arr, Ref(ps_dtfe))`, or `numberOfStreams_grid(xs, ys, zs, ps_dtfe)` |
-| `velocity_subbox`, `velocitySum_subbox` | `velocity.(coords_arr, Ref(ps_dtfe))`, `velocitySum.(coords_arr, Ref(ps_dtfe))` |
+| `ps_dtfe_subbox(coords_q, coords_x, [vels,] m, depth, sim_box)` | `PS_DTFE_subbox(coords_q, coords_x, [vels,] m, sim_box; N_sub, dir)`, which saves the sub-box estimators to `dir`; or `PS_DTFE(coords_q, coords_x, [vels,] m, sim_box)` for simulations whose estimator fits in memory |
+| `density_subbox(coords_arr, ps_dtfe_sb)` | `density_grid_sb(xs, ys, zs, ps_dtfe_sb)` on a regular grid; `density.(coords_arr, Ref(ps_dtfe))` for a list of points of an estimator in memory |
+| `numberOfStreams_subbox(coords_arr, ps_dtfe_sb)` | `numberOfStreams_grid_sb(xs, ys, zs, ps_dtfe_sb)`; `numberOfStreams.(coords_arr, Ref(ps_dtfe))` |
+| `velocity_subbox`, `velocitySum_subbox` | `velocity_grid_sb(xs, ys, zs, ps_dtfe_sb)` (every stream, see `stream_average` for the mean); `velocity.(coords_arr, Ref(ps_dtfe))`, `velocitySum.(coords_arr, Ref(ps_dtfe))` |
 
-The estimator no longer writes files to disk (the `ps_dtfe` directory of the sub-box estimators of version 1).
+The sub-box routines of version 2 evaluate regular grids, which include slices (one point along an axis); they build the sub-box estimators from the particles, or read the estimators that `PS_DTFE_subbox` saves.
 
 ## Changed results
 

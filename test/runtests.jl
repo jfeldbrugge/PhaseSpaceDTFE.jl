@@ -1,9 +1,11 @@
+ENV["JULIA_PROGRESS"] = "false"   # no progress bars of the sub-box routines in the test log
+
 using PhaseSpaceDTFE
 using Test, Random, HDF5, LinearAlgebra
 const P = PhaseSpaceDTFE
 
-"Integral of the estimator over the box, Σ_t V_t ⟨ρ⟩_t, over the stored originals of the tetrahedra."
-integral(est) = sum(findall(est.original)) do t
+"Integral of the estimator over the box, Σ_t V_t ⟨ρ⟩_t, over the tetrahedra (each stored once)."
+integral(est) = sum(axes(est.simplices, 1)) do t
     v = est.simplices[t, :]
     abs(det(P.tet_edges(est.positions, v..., est.L))) / 6 * sum(est.rho[v]) / 4
 end
@@ -16,7 +18,7 @@ function lattice(N, L; offset = 0.5, rng = MersenneTwister(1))
     return Q[randperm(rng, N^3), :]
 end
 
-@testset "PhaseSpaceDTFE.jl" begin
+@testset verbose = true "PhaseSpaceDTFE.jl" begin
 
     @testset "N-body simulation" begin
         ## set up simulation box
@@ -68,13 +70,9 @@ end
         @test density(centre .+ [L, -2L, 3L], ps_dtfe) ≈ density(centre, ps_dtfe)   # points are taken modulo the box
         @test integral(ps_dtfe) ≈ M
 
-        ## the call forms of PS_DTFE, PS_DTFE_periodic and PhaseSpaceDTFE v1 give the same estimator
+        ## PS_DTFE_periodic without velocities gives the same densities (the other call forms: "defaults and call signatures")
         p = [L/4., L/4., L/4.]
-        for est in (PS_DTFE_periodic(coords_q, coords_x, vels, m, sim_box),
-                    PS_DTFE_periodic(coords_q, coords_x, vels, m, 5, sim_box),
-                    PS_DTFE_periodic(coords_q, coords_x, m, 5, sim_box))
-            @test density(p, est) ≈ density(p, ps_dtfe)
-        end
+        @test density(p, PS_DTFE_periodic(coords_q, coords_x, m, sim_box)) ≈ density(p, ps_dtfe)
 
         ## density and number of streams in a slice
         Range = 0:5.:100.
@@ -92,8 +90,8 @@ end
         @test density_field[length(Range) ÷ 2, :, :] ≈ [density([Range[length(Range) ÷ 2], y, z], ps_dtfe) for y in Range, z in Range]
         @test density_grid(Range, Range, Range, ps_dtfe; threads = false) ≈ density_field
 
-        ## the same grid without constructing an estimator
-        ρ, n = ps_dtfe_grid(coords_q, coords_x, m, sim_box, Range, Range, Range)
+        ## the same grid without constructing an estimator (ps_dtfe_grid uses the Kuhn split by default)
+        ρ, n = ps_dtfe_grid(coords_q, coords_x, m, sim_box, Range, Range, Range; tessellation = :delaunay)
         @test ρ ≈ density_field && n == number_field
 
         ## the Kuhn split of the Lagrangian lattice
@@ -112,7 +110,7 @@ end
             @test numberOfStreams(p, nonperiodic) == numberOfStreams(p, ps_dtfe)
             @test velocitySum(p, nonperiodic) ≈ velocitySum(p, ps_dtfe)
         end
-        @test !nonperiodic.periodic && ps_dtfe.periodic
+        @test !nonperiodic.periodicity && ps_dtfe.periodicity && nonperiodic.images == :none
         @test density(centre, PS_DTFE_nonperiodic(coords_q, coords_x, m, sim_box)) ≈ density(centre, nonperiodic)
         # grids equal the point queries, also where matter has crossed a face of the box
         @test density([95., 5., 5.], nonperiodic) == 0 < density([95., 5., 5.], ps_dtfe)
@@ -120,6 +118,21 @@ end
         @test numberOfStreams_grid(Range, Range, Range, nonperiodic) == [numberOfStreams([x, y, z], nonperiodic) for x in Range, y in Range, z in Range]
         @test_throws ArgumentError PS_DTFE(coords_q, coords_x, m, sim_box; periodicity = :open)
         @test_throws ArgumentError PS_DTFE(coords_q, coords_x, m, sim_box; periodicity = :nonperiodic, tessellation = :kuhn)
+
+        ## sub-boxes, built once and saved: the grids equal the summed point queries of the sub-box estimators, for any
+        ## `parallel` (building from the particles on the fly: "sub-box grids" below)
+        Range = -10:10.:100.
+        sb = PS_DTFE_subbox(coords_q, coords_x, vels, m, sim_box; N_sub = 2, dir = mktempdir(), parallel = 2)
+        pts = [[x, y, z] for x in Range, y in Range, z in Range]
+        ρpts, npts = zeros(size(pts)), zeros(Int, size(pts))
+        P.foreach_subbox(sb) do est
+            ρpts .+= density.(pts, Ref(est)); npts .+= numberOfStreams.(pts, Ref(est))
+        end
+        ρsb, nsb = rasterise_sb(Range, Range, Range, sb)
+        @test ρsb ≈ ρpts && nsb == npts
+        @test density_grid_sb(Range, Range, Range, sb; parallel = 4) == ρsb
+        # the sub-boxes agree with the estimator of the whole box, up to nearly degenerate cells that the two split differently
+        @test count(isapprox.(ρsb, density_grid(Range, Range, Range, ps_dtfe); rtol = 1e-9)) > 0.95 * length(ρsb)
     end
 
     N, L, m = 12, 1.0, 2.0
@@ -144,7 +157,7 @@ end
                 ("shear 0.6 L", hcat(q[:, 1], q[:, 2] .+ 0.6L .* sin.(2π .* q[:, 1] ./ L), q[:, 3]))]   # edges stay < L/2
         for (name, x) in maps, wrapped in (false, true)
             X = wrapped ? mod.(x, L) : x
-            est = PS_DTFE_periodic(q, X, m, box; tessellation = :kuhn)
+            est = PS_DTFE_periodic(q, X, m, box; tessellation = :kuhn)   # every particle has the same star
             @test all(density(p, est) ≈ ρ̄ for p in pts)
             @test all(numberOfStreams(p, est) == 1 for p in pts)
         end
@@ -152,21 +165,18 @@ end
 
     @testset "velocities" begin
         v = hcat(q[:, 2], 2 .* q[:, 3], -q[:, 1])                 # linear velocity field (y, 2z, -x), single stream
+        est = PS_DTFE_periodic(q, q, v, m, box)
         p = [0.3013, 0.4521, 0.6017]
-        for tessellation in (:delaunay, :kuhn)
-            est = PS_DTFE_periodic(q, q, v, m, box; tessellation)
-            @test vec(velocity(p, est)) ≈ [p[2], 2p[3], -p[1]]
-            @test vec(velocitySum(p, est)) ≈ [p[2], 2p[3], -p[1]]
-            @test size(inSimplices(p, est)) == (1,)
-            @test velocity(p, est, true) ≈ reshape([p[2], 2p[3], -p[1]], 1, 3)
-        end
-        @test_throws ArgumentError velocity(p, PS_DTFE_periodic(q, q, m, box))
+        @test vec(velocity(p, est)) ≈ [p[2], 2p[3], -p[1]]
+        @test vec(velocitySum(p, est)) ≈ [p[2], 2p[3], -p[1]]
+        @test size(inSimplices(p, est)) == (1,)
+        @test velocity(p, est, true) ≈ reshape([p[2], 2p[3], -p[1]], 1, 3)
     end
 
     @testset "multistream: grids equal point queries, mass is conserved" begin
         # shell crossing around x = L/2, where 1 + 2πA cos(2πq/L) < 0 for A > 1/2π
         x = hcat(q[:, 1] .+ 0.25L .* sin.(2π .* q[:, 1] ./ L), q[:, 2] .+ 0.05L .* sin.(2π .* q[:, 3] ./ L), q[:, 3])
-        est = PS_DTFE_periodic(q, x, m, box; tessellation = :kuhn)
+        est = PS_DTFE_periodic(q, x, m, box)
         @test maximum(numberOfStreams(p, est) for p in ([0.49, 0.3, 0.7], [0.51, 0.62, 0.2])) == 3
         xs, ys, zs = range(-0.11, 1.07, length = 23), range(0.003, 0.997, length = 17), range(-0.5, 0.6, length = 13)
         ρg, ng = P.rasterise(est, xs, ys, zs)
@@ -175,10 +185,46 @@ end
         @test density_grid(xs, ys, zs, est; threads = false) ≈ ρg
         zplane = range(0.37, 0.37, length = 1)                   # a single plane
         @test density_grid(xs, ys, zplane, est)[:, :, 1] ≈ [density([a, b, 0.37], est) for a in xs, b in ys]
-        ρs, ns = ps_dtfe_grid(q, x, m, box, xs, ys, zs; tessellation = :kuhn)
+        ρs, ns = ps_dtfe_grid(q, x, m, box, xs, ys, zs; tessellation = :delaunay)
         @test ρs ≈ ρg && ns == ng
-        @test integral(est) ≈ m * N^3
-        @test_throws ArgumentError density_grid(reverse(xs), ys, zs, est)
+        # ps_dtfe_grid generates the Kuhn split on the fly (its default)
+        kuhn = PS_DTFE_periodic(q, x, m, box; tessellation = :kuhn)
+        ρk, nk = ps_dtfe_grid(q, x, m, box, xs, ys, zs)
+        @test ρk ≈ density_grid(xs, ys, zs, kuhn) && nk == numberOfStreams_grid(xs, ys, zs, kuhn)
+        # the integral of the estimator over the box, Σ_t V_t ⟨ρ⟩_t, is the total mass
+        M = sum(axes(est.simplices, 1)) do t
+            v = est.simplices[t, :]
+            abs(P.det(P.tet_edges(est.positions, v..., L))) / 6 * sum(est.rho[v]) / 4
+        end
+        @test M ≈ m * N^3
+    end
+
+    @testset "exact cell index, compact storage" begin
+        x = hcat(q[:, 1] .+ 0.25L .* sin.(2π .* q[:, 1] ./ L), q[:, 2] .+ 0.05L .* sin.(2π .* q[:, 3] ./ L), q[:, 3])
+        est = PS_DTFE_periodic(q, x, m, box; G = 7, tessellation = :kuhn)
+        rng = MersenneTwister(5)
+        probe = [L .* rand(rng, 3) for _ in 1:3000]
+        # the index finds every tetrahedron that contains a point, compared with testing all tetrahedra
+        all_tets = 1:size(est.simplices, 1)
+        @test all(sort(inSimplices(p, est)) == [t for t in all_tets if P.barycentric(est, t, mod.(p, L)...)[4]] for p in probe[1:300])
+        # the overlap test is exact up to the margin: fewer references than bounding-box binning
+        @test length(est.index.tets) < sum(all_tets) do t
+            o, E = P.frame(est.xt, est.corners, t, L)
+            c = (o, o + E[:, 1], o + E[:, 2], o + E[:, 3])
+            lo, hi = min.(c...), max.(c...)
+            prod(floor.(Int, hi ./ (L / 7)) .- floor.(Int, lo ./ (L / 7)) .+ 1)
+        end
+        # every Lagrangian tetrahedron is stored once
+        rows(A) = sort([sort(collect(r)) for r in eachrow(A)])
+        @test rows(est.simplices) == rows(P.lattice_tetrahedra(P.lattice_sites(q, box)))
+        @test size(est.simplices) == (6N^3, 4) && size(est.positions) == (N^3, 3) && est.positions ≈ x
+        # compact storage gives identical results
+        cmp = PS_DTFE_periodic(q, x, m, box; G = 7, tessellation = :kuhn, compact = true)
+        @test size(cmp.geometry, 2) == 0
+        @test all(density(p, cmp) === density(p, est) && numberOfStreams(p, cmp) == numberOfStreams(p, est) for p in probe)
+        xs = range(-0.11, 1.07, length = 15)
+        @test density_grid(xs, xs, xs, cmp) == density_grid(xs, xs, xs, est)
+        @test density_grid(xs, xs, xs, est) == [density([a, b, c], est) for a in xs, b in xs, c in xs]   # bit for bit
     end
 
     @testset "Delaunay tessellation, for glass initial conditions" begin
@@ -187,33 +233,37 @@ end
         tets, VL = P.periodic_delaunay(glass, L)
         @test sum(VL) ≈ L^3                                                # the tetrahedra tile the periodic box
         @test sort(unique(vec(tets))) == 1:N^3
-        @test sum(P.periodic_delaunay(q, L)[2]) ≈ L^3                      # degenerate case: an exact lattice
+        lat = P.periodic_delaunay(q, L)[1]                                 # degenerate case: an exact lattice
+        @test sum(P.periodic_delaunay(q, L)[2]) ≈ L^3
         for (name, x) in (("translation", glass .+ [2.3, -3.6, 0.7]' .* L), ("translation of the lattice", q .+ [0.4, 1.3, -2.2]' .* L))
             Q = startswith(name, "translation of") ? q : glass
-            est = PS_DTFE_periodic(Q, mod.(x, L), m, box; vertex_density = :lagrangian)
+            est = PS_DTFE_periodic(Q, mod.(x, L), m, box; tessellation = :delaunay, vertex_density = :lagrangian)
             @test est.tessellation == :delaunay
             @test all(density(p, est) ≈ ρ̄ for p in pts)                    # exact for a uniform initial density
             @test all(numberOfStreams(p, est) == 1 for p in pts)
         end
         # with :mass the vertex densities scatter for irregular stars, but the total mass is conserved
-        est = PS_DTFE_periodic(glass, glass, m, box)
+        est = PS_DTFE_periodic(glass, glass, m, box; tessellation = :delaunay)
         @test !all(density(p, est) ≈ ρ̄ for p in pts)
-        @test integral(est) ≈ m * N^3
+        M = sum(axes(est.simplices, 1)) do t
+            v = est.simplices[t, :]
+            abs(P.det(P.tet_edges(est.positions, v..., L))) / 6 * sum(est.rho[v]) / 4
+        end
+        @test M ≈ m * N^3
         # velocities, grids and the streaming grid with the Delaunay tessellation
         v = hcat(glass[:, 2], 2 .* glass[:, 3], -glass[:, 1])
-        est = PS_DTFE_periodic(glass, glass, v, m, box; vertex_density = :lagrangian)
+        est = PS_DTFE_periodic(glass, glass, v, m, box; tessellation = :delaunay, vertex_density = :lagrangian)
         p = [0.3013, 0.4521, 0.6017]
         @test vec(velocity(p, est)) ≈ [p[2], 2p[3], -p[1]]
         x = hcat(glass[:, 1] .+ 0.25L .* sin.(2π .* glass[:, 1] ./ L), glass[:, 2], glass[:, 3])
-        est = PS_DTFE_periodic(glass, x, m, box; vertex_density = :lagrangian)
+        est = PS_DTFE_periodic(glass, x, m, box; tessellation = :delaunay, vertex_density = :lagrangian)
         xs, ys, zs = range(-0.11, 1.07, length = 19), range(0.003, 0.997, length = 13), range(-0.5, 0.6, length = 11)
         ρg, ng = P.rasterise(est, xs, ys, zs)
         @test ρg ≈ [density([a, b, c], est) for a in xs, b in ys, c in zs]
         @test ng == [numberOfStreams([a, b, c], est) for a in xs, b in ys, c in zs]
-        ρs, ns = ps_dtfe_grid(glass, x, m, box, xs, ys, zs; vertex_density = :lagrangian)
+        ρs, ns = ps_dtfe_grid(glass, x, m, box, xs, ys, zs; tessellation = :delaunay, vertex_density = :lagrangian)
         @test ρs ≈ ρg && ns == ng
         @test maximum(ng) >= 3
-        @test_throws ArgumentError PS_DTFE_periodic(glass, x, m, box; tessellation = :voronoi)
     end
 
     @testset "without periodic boundaries" begin
@@ -247,6 +297,10 @@ end
         x = hcat(q[:, 1] .+ 0.25L .* sin.(2π .* q[:, 1] ./ L), q[:, 2], q[:, 3])
         xg = hcat(glass[:, 1] .+ 0.25L .* sin.(2π .* glass[:, 1] ./ L), glass[:, 2], glass[:, 3])
         masses = m .* (0.5 .+ rand(rng, N^3))
+        integral(est) = sum(axes(est.simplices, 1)) do t
+            v = est.simplices[t, :]
+            abs(P.det(P.tet_edges(est.positions, v..., L))) / 6 * sum(est.rho[v]) / 4
+        end
         for (Q, X, tess) in ((q, x, :kuhn), (glass, xg, :delaunay)), mode in (:mass, :lagrangian)
             est = PS_DTFE_periodic(Q, X, masses, box; tessellation = tess, vertex_density = mode)
             @test integral(est) ≈ sum(masses)                              # the total mass is conserved
@@ -257,23 +311,83 @@ end
         @test all(density(p, e2) ≈ 3density(p, e1) for p in pts)
         # zoom-like initial conditions: masses proportional to the Lagrangian star volume represent a uniform density,
         # which :lagrangian recovers exactly under a translation
-        tets, VL = P.periodic_delaunay(glass, L)
+        VL = P.periodic_delaunay(glass, L)[2]; tets = P.periodic_delaunay(glass, L)[1]
         W = zeros(N^3); for t in axes(tets, 1), c in tets[t, :]; W[c] += VL[t]; end
         zoom = sum(masses) .* W ./ sum(W)
-        est = PS_DTFE_periodic(glass, glass .+ 1.3L, zoom, box; vertex_density = :lagrangian)
+        est = PS_DTFE_periodic(glass, glass .+ 1.3L, zoom, box; tessellation = :delaunay, vertex_density = :lagrangian)
         @test all(density(p, est) ≈ sum(zoom) / L^3 for p in pts)
-        xs, ys, zs = range(0, 1, length = 9), range(0, 1, length = 7), range(0, 1, length = 5)
-        ρs, ns = ps_dtfe_grid(q, x, masses, box, xs, ys, zs)
-        @test ρs ≈ density_grid(xs, ys, zs, e1)
+        ρs, ns = ps_dtfe_grid(q, x, masses, box, range(0, 1, length = 9), range(0, 1, length = 7), range(0, 1, length = 5);
+                              tessellation = :delaunay)
+        @test ρs ≈ density_grid(range(0, 1, length = 9), range(0, 1, length = 7), range(0, 1, length = 5), e1)
         @test_throws ArgumentError PS_DTFE_periodic(q, x, masses[1:end - 1], box)
         @test_throws ArgumentError PS_DTFE_periodic(q, x, -1.0, box)
     end
 
-    @testset "PhaseSpaceDTFE v1 call signatures" begin
+    @testset "sub-box grids" begin
+        glass = q .+ 0.3 * (L / N) .* (rand(MersenneTwister(6), N^3, 3) .- 0.5)
+        x = hcat(glass[:, 1] .+ 0.25L .* sin.(2π .* glass[:, 1] ./ L) .+ 0.07L, glass[:, 2], glass[:, 3])   # crosses the faces
+        xs, ys, zs = range(-0.13, 1.11, length = 15), range(0.002, 0.998, length = 11), 0.37:0.37          # a slice in z
+        for periodicity in (true, false)
+            ests = [P.get_subbox_estimator(glass, x, zeros(0, 3), m, box, (i, j, k); N_sub = 2, periodicity) for i in 0:1, j in 0:1, k in 0:1]
+            pts = [[a, b, c] for a in xs, b in ys, c in zs]
+            ρ, n = rasterise_sb(xs, ys, zs, glass, x, m, box; N_sub = 2, periodicity)
+            @test ρ ≈ sum(density.(pts, Ref(e)) for e in ests) && n == sum(numberOfStreams.(pts, Ref(e)) for e in ests)
+            @test density_grid_sb(xs, ys, zs, glass, x, m, box; N_sub = 2, periodicity, parallel = 4) == ρ
+            @test numberOfStreams_grid_sb(xs, ys, zs, glass, x, m, box; N_sub = 2, periodicity, streams_type = UInt16) == n
+        end
+    end
+
+    @testset "stream velocity grids with velocity deformation" begin
+        # linear velocity field (y, 2z, -x): J = [0 1 0; 0 0 2; -1 0 0], ∇·v = 0, ω = (-2, 1, -1), σ = (J + Jᵀ)/2
+        vl = hcat(q[:, 2], 2 .* q[:, 3], -q[:, 1])
+        rx, ry, rz = range(0.213, 0.791, length = 5), range(0.237, 0.773, length = 5), range(0.271, 0.829, length = 5)   # off the faces
+        G = velocity_grid(rx, ry, rz, PS_DTFE_periodic(q, q, vl, m, box); deformation = true)
+        @test all(G.nstreams .== 1)
+        @test all(abs.(G.divergence) .< 1e-12)
+        @test all(w -> w ≈ [-2, 1, -1], eachrow(G.vorticity))
+        @test all(σ -> isapprox(σ, [0 0.5 -0.5; 0.5 0 1; -0.5 1 0]; atol = 1e-12), stream_shear(G, 3, 2, 4))
+        # multistream: every stream equals the point queries, bit for bit; averages equal the *Sum functions
+        x = hcat(q[:, 1] .+ 0.25L .* sin.(2π .* q[:, 1] ./ L), q[:, 2] .+ 0.05L .* sin.(2π .* q[:, 3] ./ L), q[:, 3])
+        v = hcat(x[:, 1] .- q[:, 1] .+ 0.2 .* sin.(2π .* q[:, 2]), 0.3 .* q[:, 3], -0.2 .* q[:, 1])
+        est = PS_DTFE_periodic(q, x, v, m, box)
+        xs, ys, zs = range(-0.11, 1.07, length = 13), range(0.003, 0.997, length = 9), range(-0.5, 0.6, length = 7)
+        G = velocity_grid(xs, ys, zs, est; deformation = true)
+        @test maximum(G.nstreams) >= 3
+        shear6(σ) = [σ[1, 1], σ[2, 2], σ[3, 3], σ[1, 2], σ[1, 3], σ[2, 3]]
+        rows(V, d, σ, ω) = sortslices(hcat(Matrix(V), d, reduce(vcat, (shear6(s)' for s in σ); init = zeros(0, 6)),
+                                           reduce(vcat, (collect(w)' for w in ω); init = zeros(0, 3))), dims = 1)
+        @test all(CartesianIndices(G)) do I
+            p, (ix, iy, iz) = [xs[I[1]], ys[I[2]], zs[I[3]]], Tuple(I)
+            rows(G[I], stream_divergence(G, ix, iy, iz), stream_shear(G, ix, iy, iz), eachrow(stream_vorticity(G, ix, iy, iz))) ==
+                rows(velocity(p, est), P.divergence(p, est), P.shear(p, est), P.vorticity(p, est))
+        end
+        I = argmax(G.nstreams); p = [xs[I[1]], ys[I[2]], zs[I[3]]]
+        @test stream_average(G, :velocity)[I, :] ≈ vec(velocitySum(p, est))
+        @test stream_average(G, :divergence)[I] ≈ P.divergenceSum(p, est)
+        @test stream_average(G, :shear)[I, :] ≈ shear6(P.shearSum(p, est))
+        @test stream_average(G, :vorticity)[I, :] ≈ P.vorticitySum(p, est)
+        @test all(isnan, stream_average(G, :divergence)[G.nstreams .== 0])
+        # sub-boxes: every stream equals the point queries of the sub-box estimators, bit for bit
+        Gsb = velocity_grid_sb(xs, ys, zs, q, x, v, m, box; N_sub = 2, deformation = true)
+        ests = [P.get_subbox_estimator(q, x, v, m, box, (i, j, k); N_sub = 2) for i in 0:1, j in 0:1, k in 0:1]
+        allrows(p) = sortslices(reduce(vcat, (rows(velocity(p, e), P.divergence(p, e), P.shear(p, e), P.vorticity(p, e)) for e in ests)), dims = 1)
+        @test all(CartesianIndices(Gsb)) do I
+            p, (ix, iy, iz) = [xs[I[1]], ys[I[2]], zs[I[3]]], Tuple(I)
+            rows(Gsb[I], stream_divergence(Gsb, ix, iy, iz), stream_shear(Gsb, ix, iy, iz), eachrow(stream_vorticity(Gsb, ix, iy, iz))) == allrows(p)
+        end
+        # without deformation only the velocities are stored
+        G0 = velocity_grid(xs, ys, zs, est)
+        @test isempty(G0.divergence) && G0.velocity == G.velocity
+        @test_throws ArgumentError stream_shear(G0, 1, 1, 1)
+    end
+
+    @testset "defaults and call signatures" begin
         x = q .+ 0.01L
-        @test density(pts[2], PS_DTFE_periodic(q, x, m, 5, box; tessellation = :kuhn)) ≈ ρ̄
-        @test density(pts[2], PS_DTFE_periodic(q, x, zero(x), m, 5, box; tessellation = :kuhn)) ≈ ρ̄
-        @test density(pts[2], PS_DTFE_periodic(q, x, m, box; tessellation = :kuhn, G = 5)) ≈ ρ̄
-        @test density(pts[2], PS_DTFE_periodic(q, x, m, 5, box; vertex_density = :lagrangian)) ≈ ρ̄
+        est = PS_DTFE_periodic(q, x, m, box)
+        @test est.tessellation == :delaunay && est.images == :all          # periodic Delaunay tessellation by default
+        @test PS_DTFE(q, x, m, box).tessellation == :delaunay
+        @test P.PS_DTFE_nonperiodic(q, x, m, box).images == :none
+        @test density(pts[2], PS_DTFE_periodic(q, x, zero(x), m, box; vertex_density = :lagrangian)) ≈ ρ̄
+        @test density(pts[2], PS_DTFE_periodic(q, x, m, box; G = 5, vertex_density = :lagrangian)) ≈ ρ̄
     end
 end

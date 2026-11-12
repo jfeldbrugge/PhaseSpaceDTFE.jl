@@ -1,3 +1,5 @@
+ENV["JULIA_PROGRESS"] = "false"   # no progress bars of the sub-box routines in the pages
+
 using PhaseSpaceDTFE
 using Documenter
 
